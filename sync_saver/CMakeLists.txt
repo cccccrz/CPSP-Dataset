@@ -11,13 +11,14 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 add_executable(sync_saver src/sync_saver.cpp)
 target_include_directories(sync_saver PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(sync_saver rclcpp sensor_msgs cv_bridge message_filters OpenCV)
+ament_target_dependencies(sync_saver rclcpp sensor_msgs cv_bridge message_filters OpenCV yaml-cpp)
 
 install(TARGETS sync_saver
   DESTINATION lib/${PROJECT_NAME})
