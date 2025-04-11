@@ -49,7 +49,7 @@ public:
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
-            "/zed/zed_node/imu/data", 200,
+            sensors_[NAME_IMU]->topic, sensors_[NAME_IMU]->rate_hz,
             [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
                 imu_buffer_.push_back(msg);
@@ -62,13 +62,13 @@ private:
     void init_sensor(const std::string& name, const fs::path& config_file) {
         RCLCPP_INFO(this->get_logger(), "Loading config: %s", config_file.c_str());
         if (!fs::exists(config_file)) {
-            if (name == "dev") return; // wait dev finished
+            if (name == NAME_CAM_DEV) return; // wait dev finished
             RCLCPP_ERROR(get_logger(), "Config file missing: %s", config_file.c_str());
             return;
         }
 
         YAML::Node config = YAML::LoadFile(config_file.string());
-        SensorConfig sensor;
+        auto sensor = std::make_shared<SensorConfig>();
         sensor.name = name;
         sensor.type = config["sensor_type"].as<std::string>();
         sensor.topic = config["topic"].as<std::string>();
@@ -93,7 +93,7 @@ private:
         }
         
         // save sensor config
-        sensors_[name] = std::make_shared<SensorConfig>(sensor);
+        sensors_[name] = sensor;
     }
 
     void setup_synchronization() {
@@ -105,7 +105,7 @@ private:
 
         // sync policy
         sync_ = std::make_shared<Sync>(SyncPolicy(20), 
-            left_sync_sub_, right_sync_sub_, imu_sync_sub_, dev_sync_sub_);    
+            left_sync_sub_, right_sync_sub_, imu_sync_sub_/*dev_sync_sub_*/);    
         sync_->setInterMessageLowerBound(0, rclcpp::Duration(0, 50000000)); // 50ms 20Hz
         sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3/*_4*/));
     }
@@ -204,7 +204,7 @@ private:
             auto& sensor = sensors_["imu"];
             std::lock_guard<std::mutex> lock(sensor->mtx);
             for (const auto& imu : batch) {
-                sensor->csv_file << imu->header.stamp.nanoseconds() << ","
+                sensor->csv_file << imu->header.stamp.nanosec << ","
                             << imu->angular_velocity.x << ","
                             << imu->angular_velocity.y << ","
                             << imu->angular_velocity.z << ","
@@ -212,8 +212,7 @@ private:
                             << imu->linear_acceleration.y << ","
                             << imu->linear_acceleration.z << "\n";
             }
-            sensor->csv_file << "#SYNC_TS:" 
-                        << msg->header.stamp.nanoseconds() << "\n";
+            sensor->csv_file << "#SYNC_TS:" << msg->header.stamp.nanosec << "\n";
         }
     #endif
     }
@@ -228,8 +227,8 @@ private:
     using SyncPolicy = message_filters::sync_policies::ApproximateTime<
         sensor_msgs::msg::Image,  // camL
         sensor_msgs::msg::Image,  // camR
-        sensor_msgs::msg::Imu,    // IMU
-        sensor_msgs::msg::Image>; // DEV 
+        sensor_msgs::msg::Imu     // IMU
+        /*sensor_msgs::msg::Image*/>; // DEV 
     using Sync = message_filters::Synchronizer<SyncPolicy>;
 
     std::map<std::string, std::shared_ptr<SensorConfig>> sensors_;
@@ -237,7 +236,7 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Image> left_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Image> right_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
-    message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_ = nullptr;
+    message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_ = std::nullptr_t;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
     std::deque<sensor_msgs::msg::Imu::ConstPtr> imu_buffer_;
     std::mutex imu_mutex_;
