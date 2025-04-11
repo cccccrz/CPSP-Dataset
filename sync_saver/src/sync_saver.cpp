@@ -31,6 +31,9 @@ struct SensorConfig {
     std::ofstream csv_file;
     std::mutex mtx;
     rclcpp::Time last_save_time;
+    SensorConfig() = default;
+    SensorConfig(const SensorConfig&) = delete;
+    SensorConfig& operator=(const SensorConfig&) = delete;
 };
 
 class SyncSaver : public rclcpp::Node {
@@ -47,7 +50,7 @@ public:
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
             "/zed/zed_node/imu/data", 200,
-            [this](const sensor_msgs::msg::Imu::ConstSharedPtr& msg) {
+            [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
                 imu_buffer_.push_back(msg);
             });
@@ -116,18 +119,18 @@ private:
         // 标记首次同步触发
         if (!first_sync_triggered_.exchange(true)) {
             // TODO check sync timestamp
-            RCLCPP_INFO(this->get_logger(), "First sync， camL[%09ld], camR[%09ld], imu[%09ld]", 
-                left_img->header.stamp.nanoseconds(),
-                right_img->header.stamp.nanoseconds(),
-                imu->header.stamp.nanoseconds());
+            RCLCPP_INFO(this->get_logger(), "First sync， camL[%ld], camR[%ld], imu[%ld]", 
+                left_img->header.stamp.nanosec,
+                right_img->header.stamp.nanosec,
+                imu->header.stamp.nanosec);
 
             std::lock_guard<std::mutex> lock(imu_mutex_);
             // 清除首次同步前的历史数据
             auto first_valid = std::lower_bound(
                 imu_buffer_.begin(), imu_buffer_.end(),
-                left_img->header.stamp,
-                [](const auto& imu, const auto& stamp) {
-                    return imu->header.stamp < stamp;
+                rclcpp::Time(left_img->header.stamp),
+                [](const auto& imu_msg, const rclcpp::Time& stamp) {
+                    return rclcpp::Time(imu_msg->header.stamp) < stamp;
                 });
             imu_buffer_.erase(imu_buffer_.begin(), first_valid);
         }
@@ -178,21 +181,20 @@ private:
             std::lock_guard<std::mutex> lock(imu_mutex_);
             auto it_start = std::lower_bound(
                 imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time - rclcpp::Duration(0, 50'000'000), // 前50ms
-                [](const auto& imu, const auto& time) {
-                    return imu->header.stamp < time;
+                sync_time - rclcpp::Duration(0, 50'000'000),
+                [](const auto& imu_msg, const rclcpp::Time& time) {
+                    return rclcpp::Time(imu_msg->header.stamp) < time;
                 });
             
             auto it_end = std::upper_bound(
                 imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time + rclcpp::Duration(0, 50'000'000), // 后50ms
-                [](const auto& time, const auto& imu) {
-                    return time < imu->header.stamp;
+                sync_time + rclcpp::Duration(0, 50'000'000),
+                [](const rclcpp::Time& time, const auto& imu_msg) {
+                    return time < rclcpp::Time(imu_msg->header.stamp);
                 });
 
             if (it_start != imu_buffer_.end()) {
-                batch.reserve(std::distance(it_start, it_end));
-                std::move(it_start, it_end, std::back_inserter(batch));
+                batch.assign(it_start, it_end);
                 imu_buffer_.erase(imu_buffer_.begin(), it_end);
             }
         }
@@ -216,12 +218,12 @@ private:
     #endif
     }
 
-    bool should_save(const std::string& name, const builtin_interfaces::msg::Time& stamp) {
-        auto& sensor = sensors_[name];
-        rclcpp::Time current_time(stamp);
-        rclcpp::Duration interval(1.0 / sensor->rate_hz);
-        return (current_time - sensor->last_save_time) >= interval;
-    }
+    // bool should_save(const std::string& name, const builtin_interfaces::msg::Time& stamp) {
+    //     auto& sensor = sensors_[name];
+    //     rclcpp::Time current_time(stamp);
+    //     rclcpp::Duration interval(1.0 / sensor->rate_hz);
+    //     return (current_time - sensor->last_save_time) >= interval;
+    // }
 
     using SyncPolicy = message_filters::sync_policies::ApproximateTime<
         sensor_msgs::msg::Image,  // camL
