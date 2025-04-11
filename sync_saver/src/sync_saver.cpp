@@ -46,13 +46,21 @@ public:
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
-            sensors_[NAME_IMU]->topic, sensors_[NAME_IMU]->rate_hz,
+            sensors_[NAME_IMU]->topic, rclcpp::QoS(rclcpp::KeepLast(200),
             [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
                 imu_buffer_.push_back(msg);
             });
 
         setup_synchronization();
+    }
+
+    ~SyncSaver() {
+        for (auto& [name, sensor] : sensors_) {
+            if (sensor->csv_file.is_open()) {
+                sensor->csv_file.close();
+            }
+        }
     }
 
 private:
@@ -66,27 +74,27 @@ private:
 
         YAML::Node config = YAML::LoadFile(config_file.string());
         auto sensor = std::make_shared<SensorConfig>();
-        sensor.name = name;
-        sensor.type = config["sensor_type"].as<std::string>();
-        sensor.topic = config["topic"].as<std::string>();
-        sensor.rate_hz = config["rate_hz"].as<double>();
+        sensor->name = name;
+        sensor->type = config["sensor_type"].as<std::string>();
+        sensor->topic = config["topic"].as<std::string>();
+        sensor->rate_hz = config["rate_hz"].as<double>();
         
         // create path
-        if (sensor.type == "camera") {
-            sensor.data_path = fs::current_path() / "dataset" / name / "data";
-            fs::create_directories(sensor.data_path);
+        if (sensor->type == "camera") {
+            sensor->data_path = fs::current_path() / "dataset" / name / "data";
+            fs::create_directories(sensor->data_path);
         } else {
-            sensor.data_path = fs::current_path() / "dataset" / name;
-            fs::create_directories(sensor.data_path);
+            sensor->data_path = fs::current_path() / "dataset" / name;
+            fs::create_directories(sensor->data_path);
         }
         
         // init CSV
-        sensor.csv_path = fs::current_path() / "dataset" / name / "data.csv";
-        sensor.csv_file.open(sensor.csv_path);
-        if (sensor.type == "camera") {
-            sensor.csv_file << "#timestamp [ns],filename\n";
+        sensor->csv_path = fs::current_path() / "dataset" / name / "data.csv";
+        sensor->csv_file.open(sensor->csv_path);
+        if (sensor->type == "camera") {
+            sensor->csv_file << "#timestamp [ns],filename\n";
         } else if (sensor.type == "imu")  {
-            sensor.csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
+            sensor->csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
         }
         
         // save sensor config
@@ -173,7 +181,7 @@ private:
         // 获取时间窗口内的所有IMU数据
         // TODO check sync time
         const rclcpp::Time sync_time = msg->header.stamp; //left_img->header.stamp;
-        std::vector<sensor_msgs::msg::Imu::ConstPtr> batch;
+        std::vector<sensor_msgs::msg::Imu::ConstSharedPtr> batch;
         {
             std::lock_guard<std::mutex> lock(imu_mutex_);
             auto it_start = std::lower_bound(
@@ -235,7 +243,7 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
     // message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
-    std::deque<sensor_msgs::msg::Imu::ConstPtr> imu_buffer_;
+    std::deque<sensor_msgs::msg::Imu::ConstSharedPtr> imu_buffer_;
     std::mutex imu_mutex_;
     std::atomic<bool> first_sync_triggered_;
 };
