@@ -31,9 +31,6 @@ struct SensorConfig {
     std::ofstream csv_file;
     std::mutex mtx;
     rclcpp::Time last_save_time;
-    SensorConfig() = default;
-    SensorConfig(const SensorConfig&) = delete;
-    SensorConfig& operator=(const SensorConfig&) = delete;
 };
 
 class SyncSaver : public rclcpp::Node {
@@ -236,7 +233,7 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Image> left_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Image> right_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
-    message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_ = std::nullptr_t;
+    // message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
     std::deque<sensor_msgs::msg::Imu::ConstPtr> imu_buffer_;
     std::mutex imu_mutex_;
