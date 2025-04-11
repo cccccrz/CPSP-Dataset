@@ -71,8 +71,10 @@ rosdep install --from-paths src --ignore-src -r -y
 # dependencies
 cd ~/ros2_ws/src/
 git clone https://github.com/ros-drivers/nmea_msgs.git
-git clone --branch humble-v4.0.8 --recursive https://github.com/stereolabs/zed-ros2-interfaces.git
+# --recursive include zed-ros2-interfaces
+# git clone --branch humble-v4.0.8 --recursive https://github.com/stereolabs/zed-ros2-interfaces.git
 # check 
+cd ..
 rosdep install --from-paths src --ignore-src -r -y
 
 colcon build --symlink-install --cmake-args=-DCMAKE_BUILD_TYPE=Release --parallel-workers $(nproc)
