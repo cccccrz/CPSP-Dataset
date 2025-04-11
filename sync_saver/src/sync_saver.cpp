@@ -81,8 +81,7 @@ private:
         if (sensor.type == "camera") {
             sensor.csv_file << "#timestamp [ns],filename\n";
         } else if (sensor.type == "imu")  {
-            sensor.csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1]
-            ,a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
+            sensor.csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
         }
         
         // all topics
@@ -125,7 +124,7 @@ private:
             RCLCPP_INFO(this->get_logger(), "First sync， camL[%09ld], camR[%09ld], imu[%09ld]", 
                 left_img->header.stamp.nanoseconds(),
                 right_img->header.stamp.nanoseconds(),
-                imu_img->header.stamp.nanoseconds());
+                imu->header.stamp.nanoseconds());
 
             std::lock_guard<std::mutex> lock(imu_mutex_);
             // 清除首次同步前的历史数据
