@@ -13,7 +13,13 @@
 #include <mutex>
 #include <deque>
 
+#define NAME_CAM_ZED_L "camL"
+#define NAME_CAM_ZED_R "camR"
+#define NAME_CAM_DEV "camDev"
+#define NAME_IMU "imu"
+
 namespace fs = std::filesystem;
+using namespace std::placeholders;
 
 struct SensorConfig {
     std::string name;
@@ -22,7 +28,6 @@ struct SensorConfig {
     double rate_hz;
     fs::path data_path;
     fs::path csv_path;
-    YAML::Node yaml_config;
     std::ofstream csv_file;
     std::mutex mtx;
     rclcpp::Time last_save_time;
@@ -34,15 +39,15 @@ public:
         this->declare_parameter("config_path", "config");
         fs::path config_path = this->get_parameter("config_path").as_string();
         
-        init_sensor("camL", config_path / "camL.yaml");
-        init_sensor("camR", config_path / "camR.yaml");
-        init_sensor("imu", config_path / "imu.yaml");
-        init_sensor("dev", config_path / "dev.yaml");
+        init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
+        init_sensor(NAME_CAM_ZED_R, config_path / "camR.yaml");
+        init_sensor(NAME_IMU, config_path / "imu.yaml");
+        init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
             "/zed/zed_node/imu/data", 200,
-            [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
+            [this](const sensor_msgs::msg::Imu::ConstSharedPtr& msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
                 imu_buffer_.push_back(msg);
             });
@@ -84,39 +89,29 @@ private:
             sensor.csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
         }
         
-        // all topics
+        // save sensor config
         sensors_[name] = std::make_shared<SensorConfig>(sensor);
     }
 
     void setup_synchronization() {
-        // get topics
-        std::vector<message_filters::SubscriberBase*> subs;
-        for (auto& [name, sensor] : sensors_) {
-            if (sensor->type == "camera") {
-                subs.push_back(&sensor->image_sub);
-                sensor->image_sub.subscribe(this, sensor->topic);
-            } else if (sensor->type == "imu") {
-                subs.push_back(&sensor->imu_sub);
-                sensor->imu_sub.subscribe(this, sensor->topic);
-            }
-        }
+        // init subscribe
+        left_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_L]->topic);
+        right_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_R]->topic);
+        imu_sync_sub_.subscribe(this, sensors_[NAME_IMU]->topic);
+        // dev_sync_sub_ TODO
 
         // sync policy
-        sync_ = std::make_shared<Sync>(
-            SyncPolicy(20),
-            *subs.begin(), *(subs.begin()+1),
-            *(subs.begin()+2), *(subs.begin()+3));    
+        sync_ = std::make_shared<Sync>(SyncPolicy(20), 
+            left_sync_sub_, right_sync_sub_, imu_sync_sub_, dev_sync_sub_);    
         sync_->setInterMessageLowerBound(0, rclcpp::Duration(0, 50000000)); // 50ms 20Hz
-        sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, 
-            std::placeholders::_1, std::placeholders::_2, 
-            std::placeholders::_3, std::placeholders::_4));
+        sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3/*_4*/));
     }
 
     void sync_callback(
         const sensor_msgs::msg::Image::ConstSharedPtr& left_img,
         const sensor_msgs::msg::Image::ConstSharedPtr& right_img,
-        const sensor_msgs::msg::Imu::ConstSharedPtr& imu,
-        const sensor_msgs::msg::Image::ConstSharedPtr& dev_img = nullptr) 
+        const sensor_msgs::msg::Imu::ConstSharedPtr& imu
+        /*const sensor_msgs::msg::Image::ConstSharedPtr& dev_img = nullptr*/) 
     {
         // 标记首次同步触发
         if (!first_sync_triggered_.exchange(true)) {
@@ -142,9 +137,9 @@ private:
             process_camera("camL", left_img);
             process_camera("camR", right_img);
             // DEV
-            if (dev_img && sensors_.count("dev")) {
-                process_camera("dev", dev_img);
-            }
+            // if (dev_img && sensors_.count("dev")) {
+            //     process_camera("dev", dev_img);
+            // }
 
             save_imu(imu);
         } catch (const std::exception& e) {
@@ -237,7 +232,11 @@ private:
 
     std::map<std::string, std::shared_ptr<SensorConfig>> sensors_;
     std::shared_ptr<Sync> sync_;
-    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> left_sync_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> right_sync_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_ = nullptr;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
     std::deque<sensor_msgs::msg::Imu::ConstPtr> imu_buffer_;
     std::mutex imu_mutex_;
     std::atomic<bool> first_sync_triggered_;
