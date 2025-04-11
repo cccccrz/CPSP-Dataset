@@ -11,6 +11,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <deque>
 
 namespace fs = std::filesystem;
 
@@ -29,11 +30,10 @@ struct SensorConfig {
 
 class SyncSaver : public rclcpp::Node {
 public:
-    SyncSaver() : Node("sync_saver") {
+    SyncSaver() : Node("sync_saver"), first_sync_triggered_(false) {
         this->declare_parameter("config_path", "config");
         fs::path config_path = this->get_parameter("config_path").as_string();
         
-        // create dir, init config, 别改初始化顺序
         init_sensor("camL", config_path / "camL.yaml");
         init_sensor("camR", config_path / "camR.yaml");
         init_sensor("imu", config_path / "imu.yaml");
@@ -147,6 +147,23 @@ private:
                         << msg->angular_velocity.x << "," << msg->angular_velocity.y << "," << msg->angular_velocity.z << ","
                         << msg->linear_acceleration.x << "," << msg->linear_acceleration.y << "," << msg->linear_acceleration.z << "\n";
         sensor->last_save_time = msg->header.stamp;
+        // 批量保存到CSV
+        if (!batch.empty()) {
+            auto& sensor = sensors_["imu"];
+            std::lock_guard<std::mutex> lock(sensor->mtx);
+            for (const auto& imu : batch) {
+                sensor->csv_file << imu->header.stamp.nanoseconds() << ","
+                            << imu->angular_velocity.x << ","
+                            << imu->angular_velocity.y << ","
+                            << imu->angular_velocity.z << ","
+                            << imu->linear_acceleration.x << ","
+                            << imu->linear_acceleration.y << ","
+                            << imu->linear_acceleration.z << "\n";
+            }
+            sensor->csv_file << "#SYNC_TS:" 
+                        << msg->header.stamp.nanoseconds() << "\n";
+        }
+    #endif
     }
 
     bool should_save(const std::string& name, const builtin_interfaces::msg::Time& stamp) {
@@ -165,6 +182,10 @@ private:
 
     std::map<std::string, std::shared_ptr<SensorConfig>> sensors_;
     std::shared_ptr<Sync> sync_;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
+    std::deque<sensor_msgs::msg::Imu::ConstPtr> imu_buffer_;
+    std::mutex imu_mutex_;
+    std::atomic<bool> first_sync_triggered_;
 };
 
 int main(int argc, char** argv) {
