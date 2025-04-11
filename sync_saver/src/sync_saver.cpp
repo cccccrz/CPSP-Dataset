@@ -46,7 +46,7 @@ public:
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
-            sensors_[NAME_IMU]->topic, rclcpp::QoS(rclcpp::KeepLast(200),
+            sensors_[NAME_IMU]->topic, 200/*sensors_[NAME_IMU]->rate_hz*/,
             [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
                 imu_buffer_.push_back(msg);
@@ -93,7 +93,7 @@ private:
         sensor->csv_file.open(sensor->csv_path);
         if (sensor->type == "camera") {
             sensor->csv_file << "#timestamp [ns],filename\n";
-        } else if (sensor.type == "imu")  {
+        } else if (sensor->type == "imu")  {
             sensor->csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
         }
         
