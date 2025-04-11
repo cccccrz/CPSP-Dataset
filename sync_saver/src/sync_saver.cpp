@@ -37,9 +37,16 @@ public:
         init_sensor("camL", config_path / "camL.yaml");
         init_sensor("camR", config_path / "camR.yaml");
         init_sensor("imu", config_path / "imu.yaml");
-        init_sensor("dev", config_path / "dev.yaml"); // 预留DEV
+        init_sensor("dev", config_path / "dev.yaml");
 
-        // 创建同步器
+        // 独立IMU订阅
+        imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
+            "/zed/zed_node/imu/data", 200,
+            [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
+                std::lock_guard<std::mutex> lock(imu_mutex_);
+                imu_buffer_.push_back(msg);
+            });
+
         setup_synchronization();
     }
 
@@ -71,7 +78,12 @@ private:
         // init CSV
         sensor.csv_path = fs::current_path() / "dataset" / name / "data.csv";
         sensor.csv_file.open(sensor.csv_path);
-        sensor.csv_file << "timestamp,filename\n";
+        if (sensor.type == "camera") {
+            sensor.csv_file << "#timestamp [ns],filename\n";
+        } else if (sensor.type == "imu")  {
+            sensor.csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1]
+            ,a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
+        }
         
         // all topics
         sensors_[name] = std::make_shared<SensorConfig>(sensor);
@@ -107,20 +119,35 @@ private:
         const sensor_msgs::msg::Imu::ConstSharedPtr& imu,
         const sensor_msgs::msg::Image::ConstSharedPtr& dev_img = nullptr) 
     {
+        // 标记首次同步触发
+        if (!first_sync_triggered_.exchange(true)) {
+            // TODO check sync timestamp
+            RCLCPP_INFO(this->get_logger(), "First sync， camL[%09ld], camR[%09ld], imu[%09ld]", 
+                left_img->header.stamp.nanoseconds(),
+                right_img->header.stamp.nanoseconds(),
+                imu_img->header.stamp.nanoseconds());
+
+            std::lock_guard<std::mutex> lock(imu_mutex_);
+            // 清除首次同步前的历史数据
+            auto first_valid = std::lower_bound(
+                imu_buffer_.begin(), imu_buffer_.end(),
+                left_img->header.stamp,
+                [](const auto& imu, const auto& stamp) {
+                    return imu->header.stamp < stamp;
+                });
+            imu_buffer_.erase(imu_buffer_.begin(), first_valid);
+        }
+
         try {
-            // save camera img
+            // save imgs
             process_camera("camL", left_img);
             process_camera("camR", right_img);
-            
-            // save IMU data
-            if (should_save("imu", imu->header.stamp)) {
-                save_imu(imu);
-            }
-
-            // save DEV img
+            // DEV
             if (dev_img && sensors_.count("dev")) {
                 process_camera("dev", dev_img);
             }
+
+            save_imu(imu);
         } catch (const std::exception& e) {
             RCLCPP_ERROR(get_logger(), "Processing error: %s", e.what());
         }
@@ -128,7 +155,7 @@ private:
 
     void process_camera(const std::string& name, const sensor_msgs::msg::Image::ConstSharedPtr& msg) {
         auto& sensor = sensors_[name];
-        if (!should_save(name, msg->header.stamp)) return;
+        // if (!should_save(name, msg->header.stamp)) return;
 
         cv::Mat img = cv_bridge::toCvCopy(msg, "bgr8")->image;
         std::string filename = std::to_string(msg->header.stamp.sec) + "_" + 
@@ -141,12 +168,41 @@ private:
     }
 
     void save_imu(const sensor_msgs::msg::Imu::ConstSharedPtr& msg) {
+    #if 0
         auto& sensor = sensors_["imu"];
         std::lock_guard<std::mutex> lock(sensor->mtx);
         sensor->csv_file << msg->header.stamp.nanosec << ","
                         << msg->angular_velocity.x << "," << msg->angular_velocity.y << "," << msg->angular_velocity.z << ","
                         << msg->linear_acceleration.x << "," << msg->linear_acceleration.y << "," << msg->linear_acceleration.z << "\n";
         sensor->last_save_time = msg->header.stamp;
+    #else
+        // 获取时间窗口内的所有IMU数据
+        // TODO check sync time
+        const rclcpp::Time sync_time = msg->header.stamp; //left_img->header.stamp;
+        std::vector<sensor_msgs::msg::Imu::ConstPtr> batch;
+        {
+            std::lock_guard<std::mutex> lock(imu_mutex_);
+            auto it_start = std::lower_bound(
+                imu_buffer_.begin(), imu_buffer_.end(),
+                sync_time - rclcpp::Duration(0, 50'000'000), // 前50ms
+                [](const auto& imu, const auto& time) {
+                    return imu->header.stamp < time;
+                });
+            
+            auto it_end = std::upper_bound(
+                imu_buffer_.begin(), imu_buffer_.end(),
+                sync_time + rclcpp::Duration(0, 50'000'000), // 后50ms
+                [](const auto& time, const auto& imu) {
+                    return time < imu->header.stamp;
+                });
+
+            if (it_start != imu_buffer_.end()) {
+                batch.reserve(std::distance(it_start, it_end));
+                std::move(it_start, it_end, std::back_inserter(batch));
+                imu_buffer_.erase(imu_buffer_.begin(), it_end);
+            }
+        }
+
         // 批量保存到CSV
         if (!batch.empty()) {
             auto& sensor = sensors_["imu"];
