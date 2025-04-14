@@ -42,7 +42,7 @@ public:
         init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
         init_sensor(NAME_CAM_ZED_R, config_path / "camR.yaml");
         init_sensor(NAME_IMU, config_path / "imu.yaml");
-        init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
+        // init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
