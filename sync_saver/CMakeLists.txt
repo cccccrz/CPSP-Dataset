@@ -13,8 +13,9 @@ find_package(OpenCV REQUIRED)
 
 add_executable(sync_saver 
   src/sync_saver.cpp
-  include/config_parser.hpp
+  src/config_parser.cpp
 )
+
 target_include_directories(sync_saver PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
