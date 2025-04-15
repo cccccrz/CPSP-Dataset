@@ -11,7 +11,7 @@
 #include <memory>
 #include <mutex>
 #include <deque>
-#include "sync_saver/config_parser.h"
+#include "sync_saver/config_parser.hpp"
 
 #define NAME_CAM_ZED_L "camL"
 #define NAME_CAM_ZED_R "camR"
