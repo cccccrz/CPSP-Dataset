@@ -36,7 +36,7 @@ struct SensorConfig {
 class SyncSaver : public rclcpp::Node {
 public:
     SyncSaver() : Node("sync_saver"), first_sync_triggered_(false) {
-        this->declare_parameter("config_path", "config");
+        this->declare_parameter("config_path", "/home/menna/CPSP-Dataset/sync_saver/config");
         fs::path config_path = this->get_parameter("config_path").as_string();
         
         init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
@@ -81,15 +81,15 @@ private:
         
         // create path
         if (sensor->type == "camera") {
-            sensor->data_path = fs::current_path() / "dataset" / name / "data";
+            sensor->data_path = "/home/menna/dataset" / name / "data";
             fs::create_directories(sensor->data_path);
         } else {
-            sensor->data_path = fs::current_path() / "dataset" / name;
+            sensor->data_path = "/home/menna/dataset" / name;
             fs::create_directories(sensor->data_path);
         }
         
         // init CSV
-        sensor->csv_path = fs::current_path() / "dataset" / name / "data.csv";
+        sensor->csv_path = "/home/menna/dataset" / name / "data.csv";
         sensor->csv_file.open(sensor->csv_path);
         if (sensor->type == "camera") {
             sensor->csv_file << "#timestamp [ns],filename\n";
