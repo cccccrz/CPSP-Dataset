@@ -81,15 +81,15 @@ private:
         
         // create path
         if (sensor->type == "camera") {
-            sensor->data_path = "/home/menna/dataset" / name / "data";
+            sensor->data_path = fs::path("/home/menna/dataset") / name / "data";
             fs::create_directories(sensor->data_path);
         } else {
-            sensor->data_path = "/home/menna/dataset" / name;
+            sensor->data_path = fs::path("/home/menna/dataset") / name;
             fs::create_directories(sensor->data_path);
         }
         
         // init CSV
-        sensor->csv_path = "/home/menna/dataset" / name / "data.csv";
+        sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
         sensor->csv_file.open(sensor->csv_path);
         if (sensor->type == "camera") {
             sensor->csv_file << "#timestamp [ns],filename\n";
