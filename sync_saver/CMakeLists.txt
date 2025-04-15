@@ -17,8 +17,8 @@ add_executable(sync_saver
 )
 
 target_include_directories(sync_saver PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 ament_target_dependencies(sync_saver rclcpp sensor_msgs cv_bridge message_filters OpenCV)
 
