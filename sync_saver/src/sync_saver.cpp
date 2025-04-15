@@ -39,9 +39,9 @@ public:
         this->declare_parameter("config_path", "/home/menna/CPSP-Dataset/sync_saver/config");
         fs::path config_path = this->get_parameter("config_path").as_string();
         
-        init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
-        init_sensor(NAME_CAM_ZED_R, config_path / "camR.yaml");
-        init_sensor(NAME_IMU, config_path / "imu.yaml");
+        init_sensor(NAME_CAM_ZED_L, config_path / "camL.ini");
+        init_sensor(NAME_CAM_ZED_R, config_path / "camR.ini");
+        init_sensor(NAME_IMU, config_path / "imu.ini");
         // init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
 
         // 独立IMU订阅
