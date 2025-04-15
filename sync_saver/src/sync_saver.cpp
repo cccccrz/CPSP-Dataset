@@ -5,13 +5,13 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
-#include <yaml-cpp/yaml.h>
 #include <filesystem>
 #include <fstream>
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <deque>
+#include "config_parser.hpp"
 
 #define NAME_CAM_ZED_L "camL"
 #define NAME_CAM_ZED_R "camR"
@@ -72,12 +72,12 @@ private:
             return;
         }
 
-        YAML::Node config = YAML::LoadFile(config_file.string());
+        ConfigParser config(config_file.string());
         auto sensor = std::make_shared<SensorConfig>();
         sensor->name = name;
-        sensor->type = config["sensor_type"].as<std::string>();
-        sensor->topic = config["topic"].as<std::string>();
-        sensor->rate_hz = config["rate_hz"].as<double>();
+        sensor->type = config.get("sensor.type");
+        sensor->topic = config.get("sensor.topic");
+        sensor->rate_hz = config.get_double("sensor.rate_hz");
         
         // create path
         if (sensor->type == "camera") {
