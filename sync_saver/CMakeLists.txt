@@ -13,7 +13,6 @@ find_package(OpenCV REQUIRED)
 
 add_executable(sync_saver 
   src/sync_saver.cpp
-  src/config_parser.cpp
 )
 
 target_include_directories(sync_saver PUBLIC
