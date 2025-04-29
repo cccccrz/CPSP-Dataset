@@ -1,0 +1,12 @@
+# General parameters
+general:
+  camera_name: 'zed'
+  camera_model: 'zedm'
+  grab_resolution: 'AUTO' # The native camera grab resolution. 'HD2K', 'HD1080', 'HD720', 'VGA', 'AUTO'
+  grab_frame_rate: 20 # ZED SDK internal grabbing rate
+
+# Sensors parameters
+sensors:
+  pub_imu_tf: true
+  pub_imu_rate: 200  # IMU 数据的发布频率
+
