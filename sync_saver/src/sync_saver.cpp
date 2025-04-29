@@ -115,6 +115,16 @@ private:
         sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3/*_4*/));
     }
 
+    inline int64_t get_nanoseconds(const sensor_msgs::msg::Image::ConstSharedPtr& msg) 
+    {
+        return msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+    }
+
+    inline int64_t get_nanoseconds(const sensor_msgs::msg::Imu::ConstSharedPtr& msg) 
+    {
+        return msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+    }
+
     void sync_callback(
         const sensor_msgs::msg::Image::ConstSharedPtr& left_img,
         const sensor_msgs::msg::Image::ConstSharedPtr& right_img,
@@ -124,10 +134,9 @@ private:
         // 标记首次同步触发
         if (!first_sync_triggered_.exchange(true)) {
             // TODO check sync timestamp
+    
             RCLCPP_INFO(this->get_logger(), "First sync， camL[%ld], camR[%ld], imu[%ld]", 
-                left_img->header.stamp.nanosec,
-                right_img->header.stamp.nanosec,
-                imu->header.stamp.nanosec);
+                get_nanoseconds(left_img), get_nanoseconds(right_img), get_nanoseconds(imu));
 
             std::lock_guard<std::mutex> lock(imu_mutex_);
             // 清除首次同步前的历史数据
@@ -142,8 +151,8 @@ private:
 
         try {
             // save imgs
-            process_camera("camL", left_img);
-            process_camera("camR", right_img);
+            process_camera(NAME_CAM_ZED_L, left_img);
+            process_camera(NAME_CAM_ZED_R, right_img);
             // DEV
             // if (dev_img && sensors_.count("dev")) {
             //     process_camera("dev", dev_img);
@@ -160,12 +169,12 @@ private:
         // if (!should_save(name, msg->header.stamp)) return;
 
         cv::Mat img = cv_bridge::toCvCopy(msg, "bgr8")->image;
-        std::string filename = std::to_string(msg->header.stamp.sec) + "_" + 
-                              std::to_string(msg->header.stamp.nanosec) + ".png";
+        int64_t nanoseconds = get_nanoseconds(msg);
+        std::string filename = std::to_string(nanoseconds) + ".png";
         
         std::lock_guard<std::mutex> lock(sensor->mtx);
         cv::imwrite((sensor->data_path / filename).string(), img);
-        sensor->csv_file << msg->header.stamp.nanosec << "," << filename << "\n";
+        sensor->csv_file << nanoseconds << "," << filename << "\n";
         sensor->last_save_time = msg->header.stamp;
     }
 
