@@ -218,7 +218,7 @@ private:
             auto& sensor = sensors_["imu"];
             std::lock_guard<std::mutex> lock(sensor->mtx);
             for (const auto& imu : batch) {
-                sensor->csv_file << imu->header.stamp.nanosec << ","
+                sensor->csv_file << get_nanoseconds(imu) << ","
                             << imu->angular_velocity.x << ","
                             << imu->angular_velocity.y << ","
                             << imu->angular_velocity.z << ","
@@ -226,7 +226,7 @@ private:
                             << imu->linear_acceleration.y << ","
                             << imu->linear_acceleration.z << "\n";
             }
-            sensor->csv_file << "#SYNC_TS:" << msg->header.stamp.nanosec << "\n";
+            sensor->csv_file << "#SYNC_TS:" << get_nanoseconds(msg) << "\n";
         }
     #endif
     }
