@@ -121,12 +121,12 @@ private:
 
     inline int64_t get_nanoseconds(const sensor_msgs::msg::Image::ConstSharedPtr& msg) 
     {
-        return msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+        return rclcpp::Time(msg->header.stamp).nanoseconds();
     }
 
     inline int64_t get_nanoseconds(const sensor_msgs::msg::Imu::ConstSharedPtr& msg) 
     {
-        return msg->header.stamp.sec * 1e9 + msg->header.stamp.nanosec;
+        return rclcpp::Time(msg->header.stamp).nanoseconds();
     }
 
     void sync_callback(
@@ -164,7 +164,6 @@ private:
             //     process_camera("dev", dev_img);
             // }
 
-            // save_imu(imu);
             save_imu_window(sync_time);
         } catch (const std::exception& e) {
             RCLCPP_ERROR(get_logger(), "Processing error: %s", e.what());
@@ -183,59 +182,6 @@ private:
         cv::imwrite((sensor->data_path / filename).string(), img);
         sensor->csv_file << nanoseconds << "," << filename << "\n";
         sensor->last_save_time = msg->header.stamp;
-    }
-
-    void save_imu(const sensor_msgs::msg::Imu::ConstSharedPtr& msg) {
-    #if 0
-        auto& sensor = sensors_["imu"];
-        std::lock_guard<std::mutex> lock(sensor->mtx);
-        sensor->csv_file << msg->header.stamp.nanosec << ","
-                        << msg->angular_velocity.x << "," << msg->angular_velocity.y << "," << msg->angular_velocity.z << ","
-                        << msg->linear_acceleration.x << "," << msg->linear_acceleration.y << "," << msg->linear_acceleration.z << "\n";
-        sensor->last_save_time = msg->header.stamp;
-    #else
-        // 获取时间窗口内的所有IMU数据
-        // TODO check sync time
-        const rclcpp::Time sync_time = msg->header.stamp; //left_img->header.stamp;
-        std::vector<sensor_msgs::msg::Imu::ConstSharedPtr> batch;
-        {
-            std::lock_guard<std::mutex> lock(imu_mutex_);
-            auto it_start = std::lower_bound(
-                imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time - rclcpp::Duration(0, 50'000'000),
-                [](const auto& imu_msg, const rclcpp::Time& time) {
-                    return rclcpp::Time(imu_msg->header.stamp) < time;
-                });
-            
-            auto it_end = std::upper_bound(
-                imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time + rclcpp::Duration(0, 50'000'000),
-                [](const rclcpp::Time& time, const auto& imu_msg) {
-                    return time < rclcpp::Time(imu_msg->header.stamp);
-                });
-
-            if (it_start != imu_buffer_.end()) {
-                batch.assign(it_start, it_end);
-                imu_buffer_.erase(imu_buffer_.begin(), it_end);
-            }
-        }
-
-        // 批量保存到CSV
-        if (!batch.empty()) {
-            auto& sensor = sensors_["imu"];
-            std::lock_guard<std::mutex> lock(sensor->mtx);
-            for (const auto& imu : batch) {
-                sensor->csv_file << get_nanoseconds(imu) << ","
-                            << imu->angular_velocity.x << ","
-                            << imu->angular_velocity.y << ","
-                            << imu->angular_velocity.z << ","
-                            << imu->linear_acceleration.x << ","
-                            << imu->linear_acceleration.y << ","
-                            << imu->linear_acceleration.z << "\n";
-            }
-            sensor->csv_file << "#SYNC_TS:" << get_nanoseconds(msg) << "\n";
-        }
-    #endif
     }
 
     void save_imu_window(const rclcpp::Time& sync_time) {
