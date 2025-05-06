@@ -1,7 +1,10 @@
 %YAML:1.0
 #Default imu sensor yaml file
-sensor_type: imu
-comment: ZED mini
+sensor:
+  comment: imu
+  type: imu
+  topic: "/zed/zed_node/imu/data"
+  rate_hz: 200.0
 
 # Sensor extrinsics wrt. the body-frame.
 T_BS:
