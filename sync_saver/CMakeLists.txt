@@ -10,7 +10,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(yaml-cpp REQUIRED)        # ← 找到系统的 yaml-cpp
+find_package(yaml-cpp REQUIRED)
 
 add_executable(sync_saver 
   src/sync_saver.cpp
@@ -32,10 +32,7 @@ ament_target_dependencies(sync_saver
 )
 
 # 显式把 yaml-cpp 加入链接
-target_link_libraries(sync_saver
-  PRIVATE
-    yaml-cpp          # 或者改成 yaml-cpp::yaml-cpp
-)
+target_link_libraries(sync_saver yaml-cpp)
 
 install(TARGETS sync_saver
   DESTINATION lib/${PROJECT_NAME}
