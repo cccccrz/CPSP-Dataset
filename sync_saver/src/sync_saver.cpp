@@ -131,10 +131,10 @@ private:
         const sensor_msgs::msg::Imu::ConstSharedPtr& imu
         /*const sensor_msgs::msg::Image::ConstSharedPtr& dev_img = nullptr*/) 
     {
+        // sync time 以ZED为准
+        rclcpp::Time sync_time = left_img->header.stamp;
         // 标记首次同步触发
         if (!first_sync_triggered_.exchange(true)) {
-            // TODO check sync timestamp
-    
             RCLCPP_INFO(this->get_logger(), "First sync， camL[%ld], camR[%ld], imu[%ld]", 
                 get_nanoseconds(left_img), get_nanoseconds(right_img), get_nanoseconds(imu));
 
@@ -158,7 +158,8 @@ private:
             //     process_camera("dev", dev_img);
             // }
 
-            save_imu(imu);
+            // save_imu(imu);
+            save_imu_window(sync_time);
         } catch (const std::exception& e) {
             RCLCPP_ERROR(get_logger(), "Processing error: %s", e.what());
         }
@@ -231,12 +232,65 @@ private:
     #endif
     }
 
-    // bool should_save(const std::string& name, const builtin_interfaces::msg::Time& stamp) {
-    //     auto& sensor = sensors_[name];
-    //     rclcpp::Time current_time(stamp);
-    //     rclcpp::Duration interval(1.0 / sensor->rate_hz);
-    //     return (current_time - sensor->last_save_time) >= interval;
-    // }
+    void save_imu_window(const rclcpp::Time& sync_time) {
+        std::vector<sensor_msgs::msg::Imu::ConstSharedPtr> batch;
+        {
+            std::lock_guard<std::mutex> lock(imu_mutex_);
+            // ±50 ms 窗口
+            auto it_start = std::lower_bound(
+                imu_buffer_.begin(), imu_buffer_.end(),
+                sync_time - rclcpp::Duration(0, 50'000'000),
+                [](auto const& msg, auto const& t){ return rclcpp::Time(msg->header.stamp) < t; });
+            auto it_end = std::upper_bound(
+                imu_buffer_.begin(), imu_buffer_.end(),
+                sync_time + rclcpp::Duration(0, 50'000'000),
+                [](auto const& t, auto const& msg){ return t < rclcpp::Time(msg->header.stamp); });
+    
+            batch.assign(it_start, it_end);
+            imu_buffer_.erase(imu_buffer_.begin(), it_end);
+        }
+    
+        if (batch.empty()) {
+            RCLCPP_WARN(get_logger(), "No IMU in sync window at %ld", sync_time.nanoseconds());
+            return;
+        }
+    
+        // 找最接近 sync_time 的索引
+        size_t best_idx = 0;
+        {
+            int64_t best_diff = std::llabs(
+                rclcpp::Time(batch[0]->header.stamp).nanoseconds()
+                - sync_time.nanoseconds());
+            for (size_t i = 1; i < batch.size(); ++i) {
+                int64_t ts = rclcpp::Time(batch[i]->header.stamp).nanoseconds();
+                int64_t diff = std::llabs(ts - sync_time.nanoseconds());
+                if (diff < best_diff) {
+                    best_diff = diff;
+                    best_idx = i;
+                }
+            }
+        }
+    
+        // 写入 CSV：只有 best_idx 那条用 sync_time.nanoseconds()，其它保持原 stamp
+        auto& sensor = sensors_[NAME_IMU];
+        std::lock_guard<std::mutex> lock(sensor->mtx);
+        for (size_t i = 0; i < batch.size(); ++i) {
+            auto const& imu_msg = batch[i];
+            int64_t ts_to_write = (i == best_idx)
+                ? sync_time.nanoseconds()
+                : rclcpp::Time(imu_msg->header.stamp).nanoseconds();
+    
+            sensor->csv_file
+                << ts_to_write << ","
+                << imu_msg->angular_velocity.x << ","
+                << imu_msg->angular_velocity.y << ","
+                << imu_msg->angular_velocity.z << ","
+                << imu_msg->linear_acceleration.x << ","
+                << imu_msg->linear_acceleration.y << ","
+                << imu_msg->linear_acceleration.z
+                << "\n";
+        }
+    }
 
     using SyncPolicy = message_filters::sync_policies::ApproximateTime<
         sensor_msgs::msg::Image,  // camL
