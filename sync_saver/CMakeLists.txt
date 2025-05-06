@@ -10,20 +10,35 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(yaml-cpp REQUIRED)
+find_package(yaml-cpp REQUIRED)        # ← 找到系统的 yaml-cpp
 
 add_executable(sync_saver 
   src/sync_saver.cpp
 )
 
+# 头文件路径（如果有）
 target_include_directories(sync_saver PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
-ament_target_dependencies(sync_saver rclcpp sensor_msgs cv_bridge message_filters OpenCV yaml-cpp)
+# ROS2 ament 依赖
+ament_target_dependencies(sync_saver 
+  rclcpp 
+  sensor_msgs 
+  cv_bridge 
+  message_filters 
+  OpenCV
+)
+
+# 显式把 yaml-cpp 加入链接
+target_link_libraries(sync_saver
+  PRIVATE
+    yaml-cpp          # 或者改成 yaml-cpp::yaml-cpp
+)
 
 install(TARGETS sync_saver
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()
