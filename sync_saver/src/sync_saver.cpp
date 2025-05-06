@@ -188,14 +188,14 @@ private:
         std::vector<sensor_msgs::msg::Imu::ConstSharedPtr> batch;
         {
             std::lock_guard<std::mutex> lock(imu_mutex_);
-            // ±50 ms 窗口
+            // ±25 ms 窗口
             auto it_start = std::lower_bound(
                 imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time - rclcpp::Duration(0, 50'000'000),
+                sync_time - rclcpp::Duration(0, 25'000'000),
                 [](auto const& msg, auto const& t){ return rclcpp::Time(msg->header.stamp) < t; });
             auto it_end = std::upper_bound(
                 imu_buffer_.begin(), imu_buffer_.end(),
-                sync_time + rclcpp::Duration(0, 50'000'000),
+                sync_time + rclcpp::Duration(0, 25'000'000),
                 [](auto const& t, auto const& msg){ return t < rclcpp::Time(msg->header.stamp); });
     
             batch.assign(it_start, it_end);
