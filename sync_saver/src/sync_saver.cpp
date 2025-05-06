@@ -11,7 +11,7 @@
 #include <memory>
 #include <mutex>
 #include <deque>
-#include "sync_saver/config_parser.hpp"
+#include <yaml-cpp/yaml.h>
 
 #define NAME_CAM_ZED_L "camL"
 #define NAME_CAM_ZED_R "camR"
@@ -39,9 +39,9 @@ public:
         this->declare_parameter("config_path", "/home/menna/CPSP-Dataset/sync_saver/config");
         fs::path config_path = this->get_parameter("config_path").as_string();
         
-        init_sensor(NAME_CAM_ZED_L, config_path / "camL.ini");
-        init_sensor(NAME_CAM_ZED_R, config_path / "camR.ini");
-        init_sensor(NAME_IMU, config_path / "imu.ini");
+        init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
+        init_sensor(NAME_CAM_ZED_R, config_path / "camR.yaml");
+        init_sensor(NAME_IMU, config_path / "imu.yaml");
         // init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
 
         // 独立IMU订阅
@@ -71,39 +71,48 @@ private:
     void init_sensor(const std::string& name, const fs::path& config_file) {
         RCLCPP_INFO(this->get_logger(), "Loading config: %s", config_file.c_str());
         if (!fs::exists(config_file)) {
-            if (name == NAME_CAM_DEV) return; // wait dev finished
             RCLCPP_ERROR(get_logger(), "Config file missing: %s", config_file.c_str());
             return;
         }
-
-        ConfigParser config(config_file.string());
+    
+        // 1) Load YAML
+        YAML::Node cfg = YAML::LoadFile(config_file.string());
+        if (!cfg["sensor"]) {
+            RCLCPP_ERROR(get_logger(), "YAML missing 'sensor' root node");
+            return;
+        }
+    
         auto sensor = std::make_shared<SensorConfig>();
         sensor->name = name;
-        sensor->type = config.get("sensor.type");
-        sensor->topic = config.get("sensor.topic");
-        sensor->rate_hz = config.get_double("sensor.rate_hz");
-        
-        // create path
+        // 2) Parse fields
+        sensor->type    = cfg["sensor"]["type"].as<std::string>();
+        sensor->topic   = cfg["sensor"]["topic"].as<std::string>();
+        sensor->rate_hz = cfg["sensor"]["rate_hz"].as<double>();
+    
+        // 3) 创建目录、打开 CSV
         if (sensor->type == "camera") {
             sensor->data_path = fs::path("/home/menna/dataset") / name / "data";
             fs::create_directories(sensor->data_path);
-        } else {
+            sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
+            sensor->csv_file.open(sensor->csv_path);
+            sensor->csv_file << "#timestamp [ns],filename\n";
+        } 
+        else if (sensor->type == "imu") {
             sensor->data_path = fs::path("/home/menna/dataset") / name;
             fs::create_directories(sensor->data_path);
+            sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
+            sensor->csv_file.open(sensor->csv_path);
+            sensor->csv_file 
+              << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],"
+                 "w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
+        } 
+        else {
+            RCLCPP_WARN(get_logger(), "Unknown sensor.type '%s' in %s",
+                        sensor->type.c_str(), config_file.c_str());
         }
-        
-        // init CSV
-        sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
-        sensor->csv_file.open(sensor->csv_path);
-        if (sensor->type == "camera") {
-            sensor->csv_file << "#timestamp [ns],filename\n";
-        } else if (sensor->type == "imu")  {
-            sensor->csv_file << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],w_RS_S_z [rad s^-1],a_RS_S_x [m s^-2],a_RS_S_y [m s^-2],a_RS_S_z [m s^-2]\n";
-        }
-        
-        // save sensor config
+    
         sensors_[name] = sensor;
-    }
+    }    
 
     void setup_synchronization() {
         // init subscribe
