@@ -46,9 +46,13 @@ public:
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
-            sensors_[NAME_IMU]->topic, 200/*sensors_[NAME_IMU]->rate_hz*/,
+            sensors_[NAME_IMU]->topic, rclcpp::SensorDataQoS().keep_last(200)/*sensors_[NAME_IMU]->rate_hz*/,
             [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
+                if (imu_buffer_.size() > 30) {
+                    imu_buffer_.pop_front();
+                    RCLCPP_WARN(get_logger(), "wait to sync, imu_buffer out size");
+                  }
                 imu_buffer_.push_back(msg);
             });
 
@@ -148,6 +152,8 @@ private:
                 });
             imu_buffer_.erase(imu_buffer_.begin(), first_valid);
         }
+
+        RCLCPP_INFO(this->get_logger(), "sync time[%ld]", sync_time.nanoseconds());
 
         try {
             // save imgs
