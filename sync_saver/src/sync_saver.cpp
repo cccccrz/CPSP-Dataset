@@ -49,7 +49,7 @@ public:
             sensors_[NAME_IMU]->topic, rclcpp::SensorDataQoS().keep_last(200)/*sensors_[NAME_IMU]->rate_hz*/,
             [this](const sensor_msgs::msg::Imu::ConstSharedPtr msg) {
                 std::lock_guard<std::mutex> lock(imu_mutex_);
-                if (imu_buffer_.size() > 30) {
+                if (imu_buffer_.size() > 100) {
                     imu_buffer_.pop_front();
                     RCLCPP_WARN(get_logger(), "wait to sync, imu_buffer out size");
                   }
