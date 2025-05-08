@@ -68,8 +68,8 @@ public:
         dev_sync_sub_ = create_subscription<sensor_msgs::msg::Image>(
             "/event_camera/image_raw", 
             rclcpp::SensorDataQoS().keep_last(10),
-            [](const sensor_msgs::msg::Image::SharedPtr msg){
-                RCLCPP_INFO(rclcpp::get_logger("test"), "Got image! [%d x %d]", 
+            [this](const sensor_msgs::msg::Image::SharedPtr msg){
+                RCLCPP_INFO(get_logger(), "Got image! [%d x %d]", 
                     msg->width, msg->height);
             });
     }
