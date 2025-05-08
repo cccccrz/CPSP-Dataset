@@ -146,7 +146,7 @@ private:
     void sync_callback(
         const sensor_msgs::msg::Image::ConstSharedPtr& left_img,
         const sensor_msgs::msg::Image::ConstSharedPtr& right_img,
-        const sensor_msgs::msg::Imu::ConstSharedPtr& imu
+        const sensor_msgs::msg::Imu::ConstSharedPtr& imu,
         const sensor_msgs::msg::Image::ConstSharedPtr& dev_img) 
     {
         // sync time 以ZED为准
