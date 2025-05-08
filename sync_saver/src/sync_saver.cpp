@@ -130,7 +130,7 @@ private:
         sync_ = std::make_shared<Sync>(SyncPolicy(20), 
             left_sync_sub_, right_sync_sub_, imu_sync_sub_, dev_sync_sub_);    
         sync_->setInterMessageLowerBound(0, rclcpp::Duration(0, 50000000)); // 50ms 20Hz
-        sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3/*_4*/));
+        sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3, _4));
     }
 
     inline int64_t get_nanoseconds(const sensor_msgs::msg::Image::ConstSharedPtr& msg) 
@@ -257,7 +257,7 @@ private:
     using SyncPolicy = message_filters::sync_policies::ApproximateTime<
         sensor_msgs::msg::Image,  // camL
         sensor_msgs::msg::Image,  // camR
-        sensor_msgs::msg::Imu     // IMU
+        sensor_msgs::msg::Imu,    // IMU
         sensor_msgs::msg::Image>; // DEV 
     using Sync = message_filters::Synchronizer<SyncPolicy>;
 
