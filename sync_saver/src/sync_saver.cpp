@@ -13,10 +13,15 @@
 #include <deque>
 #include <yaml-cpp/yaml.h>
 
-#define NAME_CAM_ZED_L "camL"
-#define NAME_CAM_ZED_R "camR"
+#define NAME_CAM_ZED_L "camZedL"
+#define NAME_CAM_ZED_R "camZedR"
 #define NAME_CAM_DEV "camDev"
-#define NAME_IMU "imu"
+#define NAME_IMU "imuZed"
+#define DIRPATH_CONFIG "/home/menna/CPSP-Dataset/sync_saver/config"
+#define DIRPATH_DATASET "/home/menna/dataset"
+#define CONFIG_CAM_ZED_L "camL.yaml"
+#define CONFIG_CAM_ZED_R "camR.yaml"
+#define CONFIG_IMU "imu.yaml"
 
 namespace fs = std::filesystem;
 using namespace std::placeholders;
@@ -36,12 +41,12 @@ struct SensorConfig {
 class SyncSaver : public rclcpp::Node {
 public:
     SyncSaver() : Node("sync_saver"), first_sync_triggered_(false) {
-        this->declare_parameter("config_path", "/home/menna/CPSP-Dataset/sync_saver/config");
+        this->declare_parameter("config_path", DIRPATH_CONFIG);
         fs::path config_path = this->get_parameter("config_path").as_string();
         
-        init_sensor(NAME_CAM_ZED_L, config_path / "camL.yaml");
-        init_sensor(NAME_CAM_ZED_R, config_path / "camR.yaml");
-        init_sensor(NAME_IMU, config_path / "imu.yaml");
+        init_sensor(NAME_CAM_ZED_L, config_path / CONFIG_CAM_ZED_L);
+        init_sensor(NAME_CAM_ZED_R, config_path / CONFIG_CAM_ZED_R);
+        init_sensor(NAME_IMU, config_path / CONFIG_IMU);
         // init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
 
         // 独立IMU订阅
@@ -75,7 +80,7 @@ private:
             return;
         }
     
-        // 1) Load YAML
+        // Load config YAML
         YAML::Node cfg = YAML::LoadFile(config_file.string());
         if (!cfg["sensor"]) {
             RCLCPP_ERROR(get_logger(), "YAML missing 'sensor' root node");
@@ -84,23 +89,22 @@ private:
     
         auto sensor = std::make_shared<SensorConfig>();
         sensor->name = name;
-        // 2) Parse fields
         sensor->type    = cfg["sensor"]["type"].as<std::string>();
         sensor->topic   = cfg["sensor"]["topic"].as<std::string>();
         sensor->rate_hz = cfg["sensor"]["rate_hz"].as<double>();
     
-        // 3) 创建目录、打开 CSV
+        // create dir、open CSV
         if (sensor->type == "camera") {
-            sensor->data_path = fs::path("/home/menna/dataset") / name / "data";
+            sensor->data_path = fs::path(DIRPATH_DATASET) / name / "data";
             fs::create_directories(sensor->data_path);
-            sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
+            sensor->csv_path = fs::path(DIRPATH_DATASET) / name / "data.csv";
             sensor->csv_file.open(sensor->csv_path);
             sensor->csv_file << "#timestamp [ns],filename\n";
         } 
         else if (sensor->type == "imu") {
-            sensor->data_path = fs::path("/home/menna/dataset") / name;
+            sensor->data_path = fs::path(DIRPATH_DATASET) / name;
             fs::create_directories(sensor->data_path);
-            sensor->csv_path = fs::path("/home/menna/dataset") / name / "data.csv";
+            sensor->csv_path = fs::path(DIRPATH_DATASET) / name / "data.csv";
             sensor->csv_file.open(sensor->csv_path);
             sensor->csv_file 
               << "#timestamp [ns],w_RS_S_x [rad s^-1],w_RS_S_y [rad s^-1],"
@@ -181,7 +185,6 @@ private:
 
     void process_camera(const std::string& name, const sensor_msgs::msg::Image::ConstSharedPtr& msg) {
         auto& sensor = sensors_[name];
-        // if (!should_save(name, msg->header.stamp)) return;
 
         cv::Mat img = cv_bridge::toCvCopy(msg, "bgr8")->image;
         int64_t nanoseconds = get_nanoseconds(msg);

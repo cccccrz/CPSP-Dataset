@@ -16,7 +16,6 @@ add_executable(sync_saver
   src/sync_saver.cpp
 )
 
-# 头文件路径（如果有）
 target_include_directories(sync_saver PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
