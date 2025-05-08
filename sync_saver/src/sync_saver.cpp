@@ -12,6 +12,7 @@
 #include <mutex>
 #include <deque>
 #include <yaml-cpp/yaml.h>
+#include "rmw/qos_profiles.h"
 
 #define NAME_CAM_ZED_L "camZedL"
 #define NAME_CAM_ZED_R "camZedR"
@@ -121,10 +122,10 @@ private:
 
     void setup_synchronization() {
         // init subscribe
-        left_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_L]->topic);
-        right_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_R]->topic);
-        imu_sync_sub_.subscribe(this, sensors_[NAME_IMU]->topic);
-        dev_sync_sub_.subscribe(this, sensors_[NAME_CAM_DEV]->topic, rclcpp::SensorDataQoS().keep_last(20));
+        left_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_L]->topic, rmw_qos_profile_sensor_data);
+        right_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_R]->topic, rmw_qos_profile_sensor_data);
+        imu_sync_sub_.subscribe(this, sensors_[NAME_IMU]->topic, rmw_qos_profile_sensor_data);
+        dev_sync_sub_.subscribe(this, sensors_[NAME_CAM_DEV]->topic, rmw_qos_profile_sensor_data);
 
         // test
         img_sub_ = create_subscription<sensor_msgs::msg::Image>(
