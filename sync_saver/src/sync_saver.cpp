@@ -63,15 +63,6 @@ public:
             });
 
         setup_synchronization();
-
-        // test
-        dev_sync_sub_ = create_subscription<sensor_msgs::msg::Image>(
-            "/event_camera/image_raw", 
-            rclcpp::SensorDataQoS().keep_last(10),
-            [this](const sensor_msgs::msg::Image::SharedPtr msg){
-                RCLCPP_INFO(get_logger(), "Got image! [%d x %d]", 
-                    msg->width, msg->height);
-            });
     }
 
     ~SyncSaver() {
@@ -134,6 +125,15 @@ private:
         right_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_R]->topic);
         imu_sync_sub_.subscribe(this, sensors_[NAME_IMU]->topic);
         dev_sync_sub_.subscribe(this, sensors_[NAME_CAM_DEV]->topic, rclcpp::SensorDataQoS().keep_last(20));
+
+        // test
+        create_subscription<sensor_msgs::msg::Image>(
+            "/event_camera/image_raw", 
+            rclcpp::SensorDataQoS().keep_last(10),
+            [this](const sensor_msgs::msg::Image::SharedPtr msg){
+                RCLCPP_INFO(get_logger(), "Got image! [%d x %d]", 
+                    msg->width, msg->height);
+            });
 
         // sync policy
         sync_ = std::make_shared<Sync>(SyncPolicy(40), 
