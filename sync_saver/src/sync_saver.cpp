@@ -22,6 +22,7 @@
 #define CONFIG_CAM_ZED_L "camL.yaml"
 #define CONFIG_CAM_ZED_R "camR.yaml"
 #define CONFIG_IMU "imu.yaml"
+#define CONFIG_CAM_DEV "dev.yaml"
 
 namespace fs = std::filesystem;
 using namespace std::placeholders;
@@ -47,7 +48,7 @@ public:
         init_sensor(NAME_CAM_ZED_L, config_path / CONFIG_CAM_ZED_L);
         init_sensor(NAME_CAM_ZED_R, config_path / CONFIG_CAM_ZED_R);
         init_sensor(NAME_IMU, config_path / CONFIG_IMU);
-        // init_sensor(NAME_CAM_DEV, config_path / "dev.yaml");
+        init_sensor(NAME_CAM_DEV, config_path / CONFIG_CAM_DEV);
 
         // 独立IMU订阅
         imu_sub_ = create_subscription<sensor_msgs::msg::Imu>(
@@ -123,11 +124,11 @@ private:
         left_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_L]->topic);
         right_sync_sub_.subscribe(this, sensors_[NAME_CAM_ZED_R]->topic);
         imu_sync_sub_.subscribe(this, sensors_[NAME_IMU]->topic);
-        // dev_sync_sub_ TODO
+        dev_sync_sub_.subscribe(this, sensors_[NAME_CAM_DEV]->topic);
 
         // sync policy
         sync_ = std::make_shared<Sync>(SyncPolicy(20), 
-            left_sync_sub_, right_sync_sub_, imu_sync_sub_/*dev_sync_sub_*/);    
+            left_sync_sub_, right_sync_sub_, imu_sync_sub_, dev_sync_sub_);    
         sync_->setInterMessageLowerBound(0, rclcpp::Duration(0, 50000000)); // 50ms 20Hz
         sync_->registerCallback(std::bind(&SyncSaver::sync_callback, this, _1, _2, _3/*_4*/));
     }
@@ -146,7 +147,7 @@ private:
         const sensor_msgs::msg::Image::ConstSharedPtr& left_img,
         const sensor_msgs::msg::Image::ConstSharedPtr& right_img,
         const sensor_msgs::msg::Imu::ConstSharedPtr& imu
-        /*const sensor_msgs::msg::Image::ConstSharedPtr& dev_img = nullptr*/) 
+        const sensor_msgs::msg::Image::ConstSharedPtr& dev_img) 
     {
         // sync time 以ZED为准
         rclcpp::Time sync_time = left_img->header.stamp;
@@ -172,10 +173,7 @@ private:
             // save imgs
             process_camera(NAME_CAM_ZED_L, left_img);
             process_camera(NAME_CAM_ZED_R, right_img);
-            // DEV
-            // if (dev_img && sensors_.count("dev")) {
-            //     process_camera("dev", dev_img);
-            // }
+            process_camera(NAME_CAM_DEV, dev_img);
 
             save_imu_window(sync_time);
         } catch (const std::exception& e) {
@@ -260,7 +258,7 @@ private:
         sensor_msgs::msg::Image,  // camL
         sensor_msgs::msg::Image,  // camR
         sensor_msgs::msg::Imu     // IMU
-        /*sensor_msgs::msg::Image*/>; // DEV 
+        sensor_msgs::msg::Image>; // DEV 
     using Sync = message_filters::Synchronizer<SyncPolicy>;
 
     std::map<std::string, std::shared_ptr<SensorConfig>> sensors_;
@@ -268,7 +266,7 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Image> left_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Image> right_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
-    // message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
     std::deque<sensor_msgs::msg::Imu::ConstSharedPtr> imu_buffer_;
     std::mutex imu_mutex_;
