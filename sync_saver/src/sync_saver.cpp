@@ -127,7 +127,7 @@ private:
         dev_sync_sub_.subscribe(this, sensors_[NAME_CAM_DEV]->topic, rclcpp::SensorDataQoS().keep_last(20));
 
         // test
-        create_subscription<sensor_msgs::msg::Image>(
+        img_sub_ = create_subscription<sensor_msgs::msg::Image>(
             "/event_camera/image_raw", 
             rclcpp::SensorDataQoS().keep_last(10),
             [this](const sensor_msgs::msg::Image::SharedPtr msg){
@@ -277,6 +277,7 @@ private:
     message_filters::Subscriber<sensor_msgs::msg::Imu> imu_sync_sub_;
     message_filters::Subscriber<sensor_msgs::msg::Image> dev_sync_sub_;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::ConstSharedPtr imu_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::ConstSharedPtr img_sub_;
     std::deque<sensor_msgs::msg::Imu::ConstSharedPtr> imu_buffer_;
     std::mutex imu_mutex_;
     std::atomic<bool> first_sync_triggered_;
