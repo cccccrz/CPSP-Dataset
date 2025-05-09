@@ -1,0 +1,7 @@
+%YAML:1.0
+# General sensor definitions.
+sensor:
+  comment: Davis imu
+  type: imu
+  topic: "/event_camera/imu"
+  rate_hz: 200.0

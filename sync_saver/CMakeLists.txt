@@ -9,6 +9,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(dvs_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
@@ -27,6 +28,7 @@ ament_target_dependencies(sync_saver
   sensor_msgs 
   cv_bridge 
   message_filters 
+  dvs_msgs
   OpenCV
 )
 

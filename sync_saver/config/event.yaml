@@ -1,0 +1,7 @@
+%YAML:1.0
+# General sensor definitions.
+sensor:
+  comment: davis
+  type: event
+  topic: "/event_camera/events"
+  rate_hz: 20.0
