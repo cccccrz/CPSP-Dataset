@@ -1,6 +1,6 @@
 ## CONTENTS:  
 This folder contains the 3D models of:  
-- the DAVIS365 camera;  
+- the DAVIS346 camera;  
 - the ZED stereo camera;  
 - the custom piece to hold the cameras in place on the car.
 
