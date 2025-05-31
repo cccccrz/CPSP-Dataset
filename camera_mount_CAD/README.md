@@ -1,4 +1,4 @@
-CONTENTS:
+CONTENTS:\n
 This folder contains the 3D models of:
 - the DAVIS365 camera;
 - the ZED stereo camera;
