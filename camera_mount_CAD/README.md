@@ -6,7 +6,7 @@ This folder contains the 3D models of:
 
 ## SOURCES:  
 Source of the original camera mount design: https://github.com/TUM-AVS/F1TENTH-Auxiliaries/tree/main  
-CAD software used to modify the orignal .stl file is Autodesk's **Fusion 360**, source: https://www.autodesk.com  
+CAD software used to modify the orignal design is Autodesk's **Fusion 360**, source: https://www.autodesk.com  
 (For UniBo students: you can download the software for free if you sign up on their website using your academic mail address)  
 
 ## USAGE OF THE FILES:  
