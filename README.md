@@ -214,16 +214,29 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
 ### Used Peaces:
 - Traxxas car
 - Lipo batteries
+  - 3-headed cable (it gives power to the car's motor and the powerboard)
 - Antenna mount (3D print)
 - Platform deck (lasercut)
-- NVIDIA Jetson Orin Nano + WiFi module + SSD card
+- NVIDIA Jetson Orin Nano
+  - WiFi module
+  - SSD card
 - Powerboard (assembled)
-- Antennas + coaxial cables
+  - power cable (it gives power to the Jetson)
+- Antennas
+  - coaxial cables
 
 ### Unnecessary Peaces:
 - VESC board
 - Hokuyo Lidar
 
+>⚠️ **Please notice:**
+>- You have to craft yourself the 3-headed cable.
+>- The coaxial cables come alongside the antennas if you buy them from the link provided in the bill of materials.
+>- You must purchase yourself the WiFi module for the Jetson.
+
 ## Original design vs Modified design  
-The original building is designed to be 
+### Original  
+The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it DOES NOT perform an elaboration of the surrounding environment (no cameras are involved).  
+### Modified  
+The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a dataset. 
 
