@@ -192,13 +192,13 @@ ros2 run sync_saver sync_saver
 
 # Car Building
 
-### Original Source:
+## Original Source:
 
 The original building design from RoboRacer (the home page also contains the complete bill of materials required): https://roboracer.ai/build  
 
 >⚠️ **Please notice:** there are 3 custom pieces that cannot be directly purchased.
 >- The antenna mount must be 3D printed, design files here: https://drive.google.com/drive/folders/1sy-XiJJ4hmhEKf5qQbUaPYY6Aw-L31Gk?usp=drive_link
->- The platform deck where all the computing elements are screwed on must be laser cut, design files here: https://drive.google.com/drive/folders/1NU4FZzvMEGKCOFzDBvnjyePnnSMvsZPG?usp=drive_link
+>- The platform deck where all the computing elements are screwed on must be lasercut, design files here: https://drive.google.com/drive/folders/1NU4FZzvMEGKCOFzDBvnjyePnnSMvsZPG?usp=drive_link
 >- The powerboard is not a single piece: the bill of materials lists all the components (resistors, capacitors, etc.) but you must solder them on the circuit board by yourself.
 
 There are 3 useful YT videos showing the building procedure step-by-step:
@@ -208,11 +208,22 @@ There are 3 useful YT videos showing the building procedure step-by-step:
 
 
 ## Design Variations:  
-
 Several variations were made to the original project in order to obtain a design more suited for our purposes: analyze an environment and extrapolate a dataset from it.
-Thanks to these adjustments, the overall project becomes much simpler.
+Thanks to these adjustments, the overall project becomes much simpler and cheaper.
 
 ### Used Peaces:
-
+- Traxxas car
+- Lipo batteries
+- Antenna mount (3D print)
+- Platform deck (lasercut)
+- NVIDIA Jetson Orin Nano + WiFi module + SSD card
+- Powerboard (assembled)
+- Antennas + coaxial cables
 
 ### Unnecessary Peaces:
+- VESC board
+- Hokuyo Lidar
+
+## Original design vs Modified design  
+The original building is designed to be 
+
