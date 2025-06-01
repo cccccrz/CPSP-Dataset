@@ -215,7 +215,6 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
 - Traxxas car
 - Lipo batteries
   - 3-headed cable (it gives power to the car's motor and the powerboard)
-- Antenna mount (3D print)
 - Platform deck (lasercut)
 - NVIDIA Jetson Orin Nano
   - WiFi module
@@ -223,6 +222,7 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
 - Powerboard (assembled)
   - power cable (it gives power to the Jetson)
 - Antennas
+  - Antenna mount (3D print)
   - coaxial cables
 
 ### Unnecessary Peaces:
