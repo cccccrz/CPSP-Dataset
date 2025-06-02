@@ -254,7 +254,7 @@ While referring to the videos, follow the instructions below to build the correc
 
 ### First video: lower level chassis
 - **DO NOT** remove the connector box and the original motor controller. Keep the pre-existent configuration of the car's servo and motor, you will use them to drive the car with its radio command.
-- Remove the nerf bars and install the standoffs for the platform deck as shown in the video.
+- Remove the nerf bars and install the standoffs for the platform deck exactly as shown in the video.
 
 ### Second video: computing elements on the upper level chassis
 - Assembling the Jetson: unbox the NVIDIA Jetson, mount the WiFi module with a screw and connect the SSD Card exactly as shown in the video.
