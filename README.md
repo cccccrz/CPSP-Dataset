@@ -230,8 +230,9 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
   - coaxial cables
 
 ### Additional Peaces:
-- event camera DAVIS346
-- stereo camera ZED
+- DAVIS346 MONO event camera: https://shop.inivation.com/collections/davis346/products/davis346-academic-rate?variant=31410896961590
+- ZED Mini stereo camera: https://www.stereolabs.com/en-it/store/products/zed-mini
+- Camera mount (3D printed): [details here](./camera_mount_CAD)
 
 >⚠️ **Please notice:**
 >- You have to craft yourself the 3-headed cable.
