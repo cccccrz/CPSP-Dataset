@@ -190,29 +190,22 @@ ros2 run my_package my_node
 ros2 run sync_saver sync_saver
 ```
 
-# Car Building
+# Hardware
 
 ## Original Source:
-
-The original building design is from RoboRacer (the home page also contains the complete bill of materials required): https://roboracer.ai/build  
+The original building design is from RoboRacer, refer to their bill of materials for the majority of the components needed: https://roboracer.ai/build  
 
 >⚠️ **Please notice:** there are 3 custom pieces that cannot be directly purchased.
 >- The antenna mount must be 3D printed, design files here: https://drive.google.com/drive/folders/1sy-XiJJ4hmhEKf5qQbUaPYY6Aw-L31Gk?usp=drive_link
 >- The platform deck where all the computing elements are screwed on must be lasercut, design files here: https://drive.google.com/drive/folders/1NU4FZzvMEGKCOFzDBvnjyePnnSMvsZPG?usp=drive_link
->- The powerboard is not a single piece: the bill of materials lists all the components (resistors, capacitors, etc.) but you must solder them on the circuit board by yourself.
-
-There are 3 useful YT videos showing the building procedure step-by-step:
-- lower level chassis: https://www.youtube.com/watch?v=IoWHUGFfrRE
-- setup of autonomy elements + upper level chassis: https://www.youtube.com/watch?v=L-V-0zzkl10
-- putting all together: https://www.youtube.com/watch?v=vNVFCq688ck
-
+>- The powerboard is not a single piece: the bill of materials lists all its components (resistors, capacitors, etc.) but you must solder them on the circuit board by yourself.
 
 ## Design Variations:  
 Several variations were made to the original project in order to obtain a design more suited for our purposes: analyze an environment and extrapolate a dataset from it.
-Thanks to these adjustments, the overall project becomes much simpler and cheaper.
+Thanks to these adjustments, the overall project becomes much simpler.
 
 ### Unnecessary Peaces:
-- VESC board
+- VESC motor controller
 - Hokuyo Lidar
   
 ### Used Peaces:
@@ -230,20 +223,46 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
   - coaxial cables
 
 ### Additional Peaces:
-- DAVIS346 MONO event camera: https://shop.inivation.com/collections/davis346/products/davis346-academic-rate?variant=31410896961590
+- DAVIS346 event camera: https://shop.inivation.com/collections/davis346/products/davis346-academic-rate?variant=31410896961590
 - ZED Mini stereo camera: https://www.stereolabs.com/en-it/store/products/zed-mini
 - Camera mount (3D printed): [details here](./camera_mount_CAD)
 
 >⚠️ **Please notice:**
 >- You have to craft yourself the 3-headed cable.
->- The coaxial cables come alongside the antennas if you buy them from the link provided in the bill of materials.
->- You must purchase yourself the WiFi module for the Jetson.
+>- The coaxial cables come alongside the antennas only if you buy them from the link provided in the bill of materials.
+>- The WiFi module does not come alongside the Jetson, you must purchase it yourself.
+>- The camera mount is not purchasable, use the files in the linked sub-folder to 3D print your own piece.
 
 ## Original design vs Modified design  
 ### Original  
-The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it DOES NOT perform an analysis of the surrounding environment (no cameras are involved).  
+The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it **DOES NOT** perform an analysis of the surrounding environment (no cameras are involved).  
 ### Modified  
-The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a dataset.
-- The car is driven using its own radio command, that comes alongside the car when you purchase it, and it is set in training mode in order to limit its speed and avoid accidents.
-- Jetson, antennas and powerboard are mounted on the platform deck, but they only get powered by the battery and are not involved 
+The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a **dataset** from the environment.
+- The car is driven using its own radio command, that comes alongside the car when you purchase it, and it is set in training mode in order to limit its speed and avoid accidents (the instructions to do that are on the car's user manual).
+- Jetson, antennas and powerboard are mounted on the platform deck, but they only get powered by the battery and are not involved in the driving of the car. ROS 2 is used to acquire data from the DAVIS346 camera and the ZED camera, synchronize the two datastreams and save the data into the Jetson's file system. The camera mount is screwed on the platform deck and the two cameras can be screwed on it.
+In this way, the car's only purpose is to move around the two cameras and the Jetson while they perform their computations.
 
+## Car building
+After you aquire all the materials, the easiest way to procede is to follow these 3 YT videos that show the building procedure step-by-step:
+- lower level chassis: https://www.youtube.com/watch?v=IoWHUGFfrRE
+- setup of autonomy elements on the upper level chassis: https://www.youtube.com/watch?v=L-V-0zzkl10
+- putting all together: https://www.youtube.com/watch?v=vNVFCq688ck
+
+These videos show the building procedure of the original design. However, since it's based on the original one, they also cover most of the building procedure of the modified design.
+While referring to the videos, follow the instructions below to build the correct hardware.
+
+### First video: lower level chassis
+- **DO NOT** remove the connector box and the original motor controller. Keep the pre-existent configuration of the car's servo and motor, you will use them to drive the car with its radio command.
+- Remove the nerf bars and install the standoffs for the platform deck as shown in the video.
+
+### Second video: computing elements on the upper level chassis
+- Assembling the Jetson: unbox the NVIDIA Jetson, mount the WiFi module with a screw and connect the SSD Card exactly as shown in the video.
+- Antenna preparation: install the standoffs on the antenna mount, insert the coaxial cables on the antenna mount and connect them with the antennas exactly as shown in the video.
+- **SKIP** the VESC mounting completely.
+- Mounting the antennas: screw the other end of the standoffs to the rear part of the platform deck in order to fix the antennas on it exactly as shown in the video.
+- Mounting the Jetson: fix the Jetson on the platform deck using some standoffs and connect the coaxial cables to the WiFi module exaclty as shown in the video.
+- Mounting the powerboard: use some standoffs to fix the powerboard on the platform deck as shown in the video (the VESC is not present, use the holes you prefer to mount the powerboard).
+- **INSTEAD OF** mounting the Lidar, fix the camera mount on the front part of the platform deck in the same position (the 3D print camera mount has the same holes of the Lidar).
+
+### Third video: putting all togheter and making the connections
+- 
