@@ -211,12 +211,16 @@ There are 3 useful YT videos showing the building procedure step-by-step:
 Several variations were made to the original project in order to obtain a design more suited for our purposes: analyze an environment and extrapolate a dataset from it.
 Thanks to these adjustments, the overall project becomes much simpler and cheaper.
 
+### Unnecessary Peaces:
+- VESC board
+- Hokuyo Lidar
+  
 ### Used Peaces:
 - Traxxas car
 - Lipo batteries
   - 3-headed cable (it gives power to the car's motor and the powerboard)
 - Platform deck (lasercut)
-- NVIDIA Jetson Orin Nano
+- NVIDIA Jetson
   - WiFi module
   - SSD card
 - Powerboard (assembled)
@@ -225,9 +229,9 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
   - Antenna mount (3D print)
   - coaxial cables
 
-### Unnecessary Peaces:
-- VESC board
-- Hokuyo Lidar
+### Additional Peaces:
+- event camera DAVIS346
+- stereo camera ZED
 
 >⚠️ **Please notice:**
 >- You have to craft yourself the 3-headed cable.
@@ -238,5 +242,7 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
 ### Original  
 The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it DOES NOT perform an analysis of the surrounding environment (no cameras are involved).  
 ### Modified  
-The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a dataset. 
+The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a dataset.
+- The car is driven using its own radio command, that comes alongside the car when you purchase it, and it is set in training mode in order to limit its speed and avoid accidents.
+- Jetson, antennas and powerboard are mounted on the platform deck, but they only get powered by the battery and are not involved 
 
