@@ -270,7 +270,7 @@ While referring to the videos, follow the instructions below to build the correc
 - Mount the platform deck on the car by screwing it to the standoffs you previously installed on the lower chassis exactly as shown in the video.
 - **SKIP** all the connections between the various components and the VESC.
 - **SKIP** the connection between the Lidar and the powerboard.
-- You can fix the ZED camera and the DAVIS346 camera to the camera mount using screws, velcro, tape, etc. Then you can connect them both to the USB ports of the Jetson, using the cables provided when you purchase the cameras.
+- You can fix the ZED camera and the DAVIS346 camera to the camera mount using screws, velcro, tape, etc. Then you can connect them both to the USB ports of the Jetson, using the cables provided when you purchased the cameras.
 - Connect one of the 12V ports of the powerboard to the power port of the Jetson using the specific power cable.
 - Provide power supply using the 3-headed cable:
   - connect the receiving head to the battery port to get power;
