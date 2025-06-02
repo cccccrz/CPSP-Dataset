@@ -240,6 +240,7 @@ The original building is designed to be completely autonomous and controlled rem
 The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a **dataset** from the environment.
 - The car is driven using its own radio command, that comes alongside the car when you purchase it, and it is set in training mode in order to limit its speed and avoid accidents (the instructions to do that are on the car's user manual).
 - Jetson, antennas and powerboard are mounted on the platform deck, but they only get powered by the battery and are not involved in the driving of the car. ROS 2 is used to acquire data from the DAVIS346 camera and the ZED camera, synchronize the two datastreams and save the data into the Jetson's file system. The camera mount is screwed on the platform deck and the two cameras can be screwed on it.
+
 In this way, the car's only purpose is to move around the two cameras and the Jetson while they perform their computations.
 
 ## Car building
