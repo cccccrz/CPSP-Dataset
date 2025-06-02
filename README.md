@@ -261,7 +261,7 @@ While referring to the videos, follow the instructions below to build the correc
 - Antenna preparation: install the standoffs on the antenna mount, insert the coaxial cables on the antenna mount and connect them with the antennas exactly as shown in the video.
 - **SKIP** the VESC mounting completely.
 - Mounting the antennas: screw the other end of the standoffs to the rear part of the platform deck in order to fix the antennas on it exactly as shown in the video.
-- Mounting the Jetson: fix the Jetson on the platform deck using some standoffs and connect the coaxial cables to the WiFi module exaclty as shown in the video.
+- Mounting the Jetson: fix the Jetson on the platform deck using some standoffs and connect the coaxial cables to the WiFi module exactly as shown in the video.
 - Mounting the powerboard: use some standoffs to fix the powerboard on the platform deck as shown in the video (the VESC is not present, use the holes you prefer to mount the powerboard).
 - **INSTEAD OF** mounting the Lidar, fix the camera mount on the front part of the platform deck in the same position (the 3D print camera mount has the same holes of the Lidar).
 
