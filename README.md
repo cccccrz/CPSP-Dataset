@@ -228,7 +228,7 @@ Thanks to these adjustments, the overall project becomes much simpler.
 - Camera mount (3D printed): [details here](./camera_mount_CAD)
 
 >⚠️ **Please notice:**
->- You have to craft yourself the 3-headed cable.
+>- You have to craft yourself the 3-headed cable, pay attention to the type of ports it needs to connect to.
 >- The coaxial cables come alongside the antennas only if you buy them from the link provided in the bill of materials.
 >- The WiFi module does not come alongside the Jetson, you must purchase it yourself.
 >- The camera mount is not purchasable, use the files in the linked sub-folder to 3D print your own piece.
