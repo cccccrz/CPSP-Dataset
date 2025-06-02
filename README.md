@@ -277,4 +277,4 @@ While referring to the videos, follow the instructions below to build the correc
   - connect the first transmitting head to the power port of the powerboard;
   - connect the second transmitting head to the motor of the car.
  
-**🎉🎉🎉 Congrats! The hardware is complete! 🎉🎉🎉**
+## **🎉🎉🎉 Congrats! The hardware is complete! 🎉🎉🎉**
