@@ -193,7 +193,7 @@ ros2 run sync_saver sync_saver
 # Hardware
 
 ## Original Source:
-The original building design is from RoboRacer, refer to their bill of materials for the majority of the components needed: https://roboracer.ai/build  
+The original building design is from RoboRacer, refer to their bill of materials for the majority of the components needed: https://roboracer.ai (/build/Building the RoboRacer Car/Bill of Materials)  
 
 >⚠️ **Please notice:** there are 3 custom pieces that cannot be directly purchased.
 >- The antenna mount must be 3D printed, design files here: https://drive.google.com/drive/folders/1sy-XiJJ4hmhEKf5qQbUaPYY6Aw-L31Gk?usp=drive_link
