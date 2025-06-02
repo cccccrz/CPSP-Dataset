@@ -204,11 +204,11 @@ The original building design is from RoboRacer, refer to their bill of materials
 Several variations were made to the original project in order to obtain a design more suited for our purposes: analyze an environment and extrapolate a dataset from it.
 Thanks to these adjustments, the overall project becomes much simpler.
 
-### Unnecessary Peaces:
+### ❌ Unnecessary Peaces:
 - VESC motor controller
 - Hokuyo Lidar
   
-### Used Peaces:
+### ✔️ Used Peaces:
 - Traxxas Slash 4X4 "Ultimate" (the car)
 - Lipo batteries
   - 3-headed cable (it takes power from the battery port and gives it to the car's motor and to the powerboard's power port)
@@ -222,7 +222,7 @@ Thanks to these adjustments, the overall project becomes much simpler.
   - Antenna mount (3D print)
   - coaxial cables
 
-### Additional Peaces:
+### ➕ Additional Peaces:
 - DAVIS346 event camera: https://shop.inivation.com/collections/davis346/products/davis346-academic-rate?variant=31410896961590
 - ZED Mini stereo camera: https://www.stereolabs.com/en-it/store/products/zed-mini
 - Camera mount (3D printed): [details here](./camera_mount_CAD)
