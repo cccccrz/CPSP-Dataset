@@ -211,7 +211,7 @@ Thanks to these adjustments, the overall project becomes much simpler.
 ### Used Peaces:
 - Traxxas car
 - Lipo batteries
-  - 3-headed cable (it gives power to the car's motor and the powerboard)
+  - 3-headed cable (it takes power from the battery port and gives it to the car's motor and the powerboard's power port)
 - Platform deck (lasercut)
 - NVIDIA Jetson
   - WiFi module
@@ -264,5 +264,16 @@ While referring to the videos, follow the instructions below to build the correc
 - Mounting the powerboard: use some standoffs to fix the powerboard on the platform deck as shown in the video (the VESC is not present, use the holes you prefer to mount the powerboard).
 - **INSTEAD OF** mounting the Lidar, fix the camera mount on the front part of the platform deck in the same position (the 3D print camera mount has the same holes of the Lidar).
 
-### Third video: putting all togheter and making the connections
-- 
+### Third video: putting all together and making the connections
+- Put the battery inside the lower chassis exactly as shown in the video.
+- Mount the platform deck on the car by screwing it to the standoffs you previously installed on the lower chassis exactly as shown in the video.
+- **SKIP** all the connections between the various components and the VESC.
+- **SKIP** the connection between the Lidar and the powerboard.
+- You can fix the ZED camera and the DAVIS346 camera to the camera mount using screws, velcro, tape, etc. Then you can connect them both to the USB ports of the Jetson, using the cables provided when you purchase the cameras.
+- Connect one of the 12V ports of the powerboard to the power port of the Jetson using the specific power cable.
+- Provide power supply using the 3-headed cable:
+  - connect the receiving head to the battery port to get power;
+  - connect the first transmitting head to the power port of the powerboard;
+  - connect the second transmitting head to the motor of the car.
+ 
+**🎉🎉🎉 Congrats! The hardware is complete! 🎉🎉🎉**
