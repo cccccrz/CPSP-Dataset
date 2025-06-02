@@ -258,7 +258,7 @@ While referring to the videos, follow the instructions below to build the correc
 
 ### Second video: computing elements on the upper level chassis
 - Assembling the Jetson: unbox the NVIDIA Jetson, mount the WiFi module with a screw and connect the SSD Card exactly as shown in the video.
-- Antenna preparation: install the standoffs on the antenna mount, insert the coaxial cables on the antenna mount and connect them with the antennas exactly as shown in the video.
+- Antenna preparation: install the standoffs on the antenna mount, insert the coaxial cables in the antenna mount and connect them with the antennas exactly as shown in the video.
 - **SKIP** the VESC mounting completely.
 - Mounting the antennas: screw the other end of the standoffs to the rear part of the platform deck in order to fix the antennas on it exactly as shown in the video.
 - Mounting the Jetson: fix the Jetson on the platform deck using some standoffs and connect the coaxial cables to the WiFi module exactly as shown in the video.
