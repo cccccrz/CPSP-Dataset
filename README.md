@@ -211,7 +211,7 @@ Thanks to these adjustments, the overall project becomes much simpler.
 ### Used Peaces:
 - Traxxas car
 - Lipo batteries
-  - 3-headed cable (it takes power from the battery port and gives it to the car's motor and the powerboard's power port)
+  - 3-headed cable (it takes power from the battery port and gives it to the car's motor and to the powerboard's power port)
 - Platform deck (lasercut)
 - NVIDIA Jetson
   - WiFi module
