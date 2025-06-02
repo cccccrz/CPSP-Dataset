@@ -194,7 +194,7 @@ ros2 run sync_saver sync_saver
 
 ## Original Source:
 
-The original building design from RoboRacer (the home page also contains the complete bill of materials required): https://roboracer.ai/build  
+The original building design is from RoboRacer (the home page also contains the complete bill of materials required): https://roboracer.ai/build  
 
 >⚠️ **Please notice:** there are 3 custom pieces that cannot be directly purchased.
 >- The antenna mount must be 3D printed, design files here: https://drive.google.com/drive/folders/1sy-XiJJ4hmhEKf5qQbUaPYY6Aw-L31Gk?usp=drive_link
@@ -236,7 +236,7 @@ Thanks to these adjustments, the overall project becomes much simpler and cheape
 
 ## Original design vs Modified design  
 ### Original  
-The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it DOES NOT perform an elaboration of the surrounding environment (no cameras are involved).  
+The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it DOES NOT perform an analysis of the surrounding environment (no cameras are involved).  
 ### Modified  
 The modified building is designed to accomplish an elaboration of the surroundings while moving the car, in order to acquire a dataset. 
 
