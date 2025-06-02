@@ -243,7 +243,7 @@ The modified building is designed to accomplish an elaboration of the surroundin
 
 In this way, the car's only purpose is to move around the two cameras and the Jetson while they perform their computations.
 
-## Car building
+## 🪛 Car building
 After you aquire all the materials, the easiest way to procede is to follow these 3 YT videos that show the building procedure step-by-step:
 - lower level chassis: https://www.youtube.com/watch?v=IoWHUGFfrRE
 - setup of autonomy elements on the upper level chassis: https://www.youtube.com/watch?v=L-V-0zzkl10
