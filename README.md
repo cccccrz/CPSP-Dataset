@@ -209,11 +209,11 @@ Thanks to these adjustments, the overall project becomes much simpler.
 - Hokuyo Lidar
   
 ### Used Peaces:
-- Traxxas car
+- Traxxas Slash 4X4 "Ultimate" (the car)
 - Lipo batteries
   - 3-headed cable (it takes power from the battery port and gives it to the car's motor and to the powerboard's power port)
 - Platform deck (lasercut)
-- NVIDIA Jetson
+- NVIDIA Jetson Orin Nano
   - WiFi module
   - SSD card
 - Powerboard (assembled)
