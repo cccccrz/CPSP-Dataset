@@ -233,7 +233,7 @@ Thanks to these adjustments, the overall project becomes much simpler.
 >- The WiFi module does not come alongside the Jetson, you must purchase it yourself.
 >- The camera mount is not purchasable, use the files in the linked sub-folder to 3D print your own piece.
 
-## Original design vs Modified design  
+## Original design 🆚 Modified design  
 ### Original  
 The original building is designed to be completely autonomous and controlled remotely by a PC. ROS 2 is used exclusively for manouvering the vehicle and managing the synchronization of the different devices (Jetson, VESC, Lidar, Servo); it **DOES NOT** perform an analysis of the surrounding environment (no cameras are involved).  
 ### Modified  
