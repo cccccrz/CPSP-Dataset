@@ -71,7 +71,7 @@ ros2 topic echo /camera/left/image_rect_color --no-arr
 
 
 
-### dependencies
+### Dependencies
 
 ##### ros2 foxy 
 
