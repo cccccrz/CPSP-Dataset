@@ -185,8 +185,6 @@ colcon build --packages-select sync_saver --symlink-install --cmake-args -DCMAKE
 # env have been added
 ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zedm config_file:=zed_camera.yaml
 
-# run davis node
-# TODO
 
 # run sync node
 # env have not been added
@@ -204,14 +202,18 @@ Topics to subscribe to:
 
 ##### davis node #TODO see  [dev branch](https://github.com/cccccrz/CPSP-Dataset/tree/dev?tab=readme-ov-file)
 1. Source the workspace:
+   ```bash
    source install/setup.bash
+   ```
 
-2. Launch the recording node
+3. Launch the recording node
+   ```bash
    ros2 launch libcaer_driver driver_node.launch.py device_type:=davis
-
-3. Record events
+   ```
+5. Record events
+   ```bash
    ros2 bag record /event_camera/events
-
+   ```
    NOTE: Recording is saved in folder ~/ros2_ws/rosbag2_{date}_{time}
    Data is in .db3 format
 
