@@ -10,7 +10,7 @@
 
   check version `nvcc --version`
 
-- ROS2 foxy on Ubuntu 20.04
+- ROS2 foxy on Ubuntu 20.4.6
 
   https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Development-Setup.html
 
@@ -107,6 +107,66 @@ sudo apt install libopencv-dev
 sudo apt install libyaml-cpp-dev
 ```
 
+### For interfacing with DAVIS camera
+### preparing the Jetson device for DVS camera USB connection
+create a file:
+/etc/udev/rules.d/99-davis.rules
+
+File contents should be:
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666", GROUP="plugdev"
+
+next, use these commands to reload the rules and 
+sudo udevadm control --reload-rules
+sudo udevadm trigger 
+
+
+##### event_camera_msgs
+needed by libcaer_driver
+inside the worksace:
+git clone https://github.com/ros-event-camera/event_camera_msgs
+
+##### dvs_msgs
+inside the worksace:
+git clone https://github.com/ros-event-camera/dvs_msgs.git
+
+##### libcaer_vendor.git
+inside the worksace:
+git clone https://github.com/ros-event-camera/libcaer_vendor.git
+
+
+Adjustments to be made in order to allow a successful build despite incompatibilities with ROS foxy
+1. Changes were made to cmake file
+   change this file in your workspace: src/libcaer_vendor/CMakeLists.txt
+
+   replace find_package(ament_cmake_vendor_package REQUIRED) with find_package(ament_cmake REQUIRED)
+   comment or remove the lines with: ament_vendor(libcaer ...)
+
+   Make sure you don't delete these
+   find_package(ament_cmake REQUIRED)
+   ament_package()
+
+
+Remove or comment this line
+```bash
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/libcaer_vendor.sh")
+```
+
+
+2. Changes to package.txt file 
+Remove or comment out any use of ament_vendor in the file src/libcaer_vendor/package.xml
+Remove this line if found present
+<buildtool_depend>ament_vendor</buildtool_depend>
+
+3. changes to package.xml
+   change this file: src/libcaer_vendor/package.xml
+   delete these lines:
+   <build_depend>ament_cmake_vendor_package</build_depend>
+   <exec_depend>ament_cmake_vendor_package</exec_depend>
+   <depend>ament_cmake_vendor_package</depend>
+
+##### libcaer_driver repo
+https://github.com/ros-event-camera/libcaer_driver/tree/master
+install the repo from source to overcome issues of incompatibility with ros2 foxy
 
 
 ### compile
@@ -145,6 +205,17 @@ Topics to subscribe to:
 - "/zed/zed_node/imu/data"
 
 ##### davis node #TODO see  [dev branch](https://github.com/cccccrz/CPSP-Dataset/tree/dev?tab=readme-ov-file)
+Source the workspace: 
+source install/setup.bash
+
+Launch the recording node
+ros2 launch libcaer_driver driver_node.launch.py device_type:=davis
+
+To record events
+ros2 bag record /event_camera/events
+
+Recording is saved in folder ~/ros2_ws/rosbag2_{date}_{time}
+Data is in .db3 format
 
 ##### sync_saver
 
