@@ -156,7 +156,9 @@ Adjustments to be made in order to allow a successful build despite incompatibil
 <buildtool_depend>ament_vendor</buildtool_depend>
 
 3. changes to package.xml
+
    change this file: src/libcaer_vendor/package.xml
+
    delete these lines:
    <build_depend>ament_cmake_vendor_package</build_depend>
    <exec_depend>ament_cmake_vendor_package</exec_depend>
