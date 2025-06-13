@@ -359,13 +359,13 @@ While referring to the videos, follow the instructions below to build the correc
 
 # Contributions
 
-- Test the car assembly and write down the list of missing parts (Riccardo)
-- Re-asseble the existing ESC module, test the car with the RC control, impose safe speed limit (Zainab)
-- Assemble the car with missing pieces and add the two cameras (Riccardo)
-- Testing DVS with laptop (Riccardo)
-- Python script to read DVS data (Riccardo)
-- Read stereocamera from laptop (Tianyi)
+- Test the car assembly and write down the list of missing parts (**Riccardo**)
+- Re-asseble the existing ESC module, test the car with the RC control, impose safe speed limit (**Zainab**)
+- Assemble the car with missing pieces and add the two cameras (**Riccardo**)
+- Testing DVS with laptop (**Riccardo**)
+- Python script to read DVS data (**Riccardo**)
+- Read stereocamera from laptop (**Tianyi**)
 - Setup NVIDIA Jetson
-- Read DVS from Jetson using ROS2 (Tianyi)
-- Read sterocamera (ground-truth) from Jetson using ROS2 (Tianyi)
-- In ROS2 sychronize the acquisition of DVS and stereo data (Zainab - ongoing)
+- Read DVS from Jetson using ROS2 (**Tianyi**)
+- Read sterocamera (ground-truth) from Jetson using ROS2 (**Tianyi**)
+- In ROS2 sychronize the acquisition of DVS and stereo data (**Zainab - ongoing**)
