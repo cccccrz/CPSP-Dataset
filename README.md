@@ -1,7 +1,9 @@
 # Repository Structure
 
 - [camera_mount_CAD](./camera_mount_CAD) : folder containing the files to design and 3D print a customized camera mount
+- [sync_saver ](./sync_saver): ROS2 custom node with cpp
 - Read AEDAT.py : python script that converts the DAVIS346 data acquisitions (.aedat4 file) into a dataset format (.csv file for IMU and events, .png for frames) (**NOT USED**)
+- zed_camera.yaml : zed camera config file
 
 # Software: requirements & demo (w/ credits)
 
@@ -354,7 +356,7 @@ While referring to the videos, follow the instructions below to build the correc
   - connect the receiving head to the battery port to get power;
   - connect the first transmitting head to the power port of the powerboard;
   - connect the second transmitting head to the motor of the car.
- 
+
 ## **🎉🎉🎉 Congrats! The hardware is complete! 🎉🎉🎉**
 
 # Contributions
