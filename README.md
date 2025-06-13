@@ -1,4 +1,9 @@
-# Dataset
+# Repository Structure
+
+- [camera_mount_CAD](./camera_mount_CAD) : folder containing the files to design and 3D print a customized camera mount
+- Read AEDAT.py : python script that converts the DAVIS346 data acquisitions (.aedat4 file) into a dataset format (.csv file for IMU and events, .png for frames) (**NOT USED**)
+
+# Software: requirements & demo (w/ credits)
 
 ### Environment
 
@@ -263,7 +268,7 @@ ros2 run my_package my_node
 ros2 run sync_saver sync_saver
 ```
 
-# Hardware
+# Hardware: requirements & demo (w/ credits)
 
 ## Original Source:
 The original building design is from RoboRacer, refer to their bill of materials for the majority of the components needed: https://roboracer.ai (/build/Building the RoboRacer Car/Bill of Materials)  
@@ -351,3 +356,16 @@ While referring to the videos, follow the instructions below to build the correc
   - connect the second transmitting head to the motor of the car.
  
 ## **🎉🎉🎉 Congrats! The hardware is complete! 🎉🎉🎉**
+
+# Contributions
+
+- Test the car assembly and write down the list of missing parts (Riccardo)
+- Re-asseble the existing ESC module, test the car with the RC control, impose safe speed limit (Zainab)
+- Assemble the car with missing pieces and add the two cameras (Riccardo)
+- Testing DVS with laptop (Riccardo)
+- Python script to read DVS data (Riccardo)
+- Read stereocamera from laptop (Tianyi)
+- Setup NVIDIA Jetson
+- Read DVS from Jetson using ROS2 (Tianyi)
+- Read sterocamera (ground-truth) from Jetson using ROS2 (Tianyi)
+- In ROS2 sychronize the acquisition of DVS and stereo data (Zainab - ongoing)
