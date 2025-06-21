@@ -378,3 +378,4 @@ While referring to the videos, follow the instructions below to build the correc
 
 ### Mennatalla Hassan
 - Setup NVIDIA Jetson
+- Read DVS from Jetson using ROS2
