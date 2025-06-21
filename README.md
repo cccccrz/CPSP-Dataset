@@ -1,7 +1,7 @@
 # Repository Structure
 
 - [camera_mount_CAD](./camera_mount_CAD) : folder containing the files to design and 3D print a customized camera mount
-- [sync_saver ](./sync_saver): ROS2 custom node with cpp
+- [sync_saver](./sync_saver) : ROS2 custom node with cpp
 - Read AEDAT.py : python script that converts the DAVIS346 data acquisitions (.aedat4 file) into a dataset format (.csv file for IMU and events, .png for frames) (**NOT USED**)
 - zed_camera.yaml : zed camera config file
 
