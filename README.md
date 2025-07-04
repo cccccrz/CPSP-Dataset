@@ -144,13 +144,14 @@ Topics to subscribe to:
 - "/zed/zed_node/right/image_rect_color"
 - "/zed/zed_node/imu/data"
 
-##### davis node #TODO
+##### davis node # Work in Progress
 
 Topics to subscribe to:
 
 - "/event_camera/events"
 - "/event_camera/image_raw"
 - "/event_camera/imu"
+- Note: Subscription implemented, but some issues under debugging.
 
 ##### sync_saver
 
