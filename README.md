@@ -229,7 +229,7 @@ Topics to subscribe to:
 
 ##### sync_saver
 
-Subscribe to the zed_wrapper node, synchronize messages and save them to form a data set.
+Subscribe to the zed_wrapper node, synchronized the messages using sync_saver, and saved them to create a dataset.
 
 The dataset structure is as follows:
 
